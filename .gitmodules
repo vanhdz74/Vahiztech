@@ -1,0 +1,6 @@
+[submodule "apps/coursedemy"]
+	path = apps/coursedemy
+	url = https://github.com/vanhdz74/CourseDemy_v2.git
+[submodule "apps/vihotask"]
+	path = apps/vihotask
+	url = https://github.com/vanhdz74/VihoTask.git

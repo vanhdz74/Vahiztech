@@ -44,17 +44,28 @@ Dự án thiết lập toàn bộ hạ tầng Identity and Access Management (IA
 
 ---
 
-## 2. Cấu trúc Thư mục
+## 2. Cấu trúc Thư mục Hệ Sinh Thái (Ecosystem Monorepo Hub)
 
 ```
 .
+├── apps/                  # Các ứng dụng & Client Microservices trong hệ sinh thái
+│   ├── coursedemy/        # [Git Submodule] -> github.com/vanhdz74/CourseDemy_v2
+│   └── vihotask/          # [Git Submodule] -> github.com/vanhdz74/VihoTask
 ├── docker-compose.yml     # Khởi chạy PostgreSQL 16 và Keycloak 25+
 ├── realm-config.json      # File định nghĩa Realm, Clients, Roles, Protocol Mappers & Users
 ├── .env.example           # File mẫu biến môi trường
 ├── .env                   # File cấu hình môi trường thực thi
 ├── test-token.sh          # Script bash kiểm thử cấp token và giải mã JWT claims
+├── .gitmodules            # Cấu hình liên kết Git Submodules
 └── README.md              # Tài liệu hướng dẫn chi tiết
 ```
+
+### Cách Clone toàn bộ hệ sinh thái kèm các Submodule:
+```bash
+git clone --recurse-submodules https://github.com/vanhdz74/Vahiztech.git
+cd Vahiztech
+```
+
 
 ---
 
