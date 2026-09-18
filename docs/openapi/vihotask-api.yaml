@@ -1,0 +1,375 @@
+openapi: 3.0.3
+info:
+  title: VihoTask Microservice API
+  description: API dịch vụ quản lý công việc và dự án theo phương pháp Agile/Kanban trong hệ sinh thái SaaS Multi-Tenant Vahiztech. Yêu cầu xác thực JWT Token với license 'vihotask'.
+  version: 1.0.0
+servers:
+  - url: http://localhost:8083
+    description: Local Spring Boot Development Server
+  - url: https://api.vahiztech.com/vihotask
+    description: Production API Gateway
+
+security:
+  - BearerAuth: []
+
+paths:
+  /api/v1/projects:
+    get:
+      summary: Lấy danh sách dự án của Tenant hiện tại
+      tags:
+        - Projects
+      responses:
+        '200':
+          description: Danh sách dự án
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProjectListApiResponse'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenLicenseError'
+
+    post:
+      summary: Tạo mới dự án
+      description: Yêu cầu quyền 'org_admin' trong tổ chức.
+      tags:
+        - Projects
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ProjectCreateRequest'
+      responses:
+        '201':
+          description: Tạo dự án thành công kèm các cột Kanban mặc định (TODO, IN_PROGRESS, DONE)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProjectSingleApiResponse'
+
+  /api/v1/projects/{projectId}/board:
+    get:
+      summary: Lấy toàn bộ bảng Kanban của dự án (bao gồm các cột và thẻ công việc)
+      tags:
+        - Kanban Board
+      parameters:
+        - name: projectId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Dữ liệu bảng Kanban hoàn chỉnh
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BoardApiResponse'
+
+  /api/v1/tasks:
+    post:
+      summary: Tạo thẻ công việc mới trong dự án
+      tags:
+        - Tasks
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TaskCreateRequest'
+      responses:
+        '201':
+          description: Tạo công việc thành công
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TaskSingleApiResponse'
+
+  /api/v1/tasks/{taskId}/move:
+    patch:
+      summary: Kéo thả di chuyển công việc giữa các cột Kanban
+      tags:
+        - Tasks
+      parameters:
+        - name: taskId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - targetColumnId
+              properties:
+                targetColumnId:
+                  type: string
+                  format: uuid
+      responses:
+        '200':
+          description: Di chuyển thành công
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StandardApiResponse'
+
+  /api/v1/tasks/{taskId}/comments:
+    get:
+      summary: Lấy danh sách bình luận của công việc
+      tags:
+        - Comments
+      parameters:
+        - name: taskId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Danh sách bình luận
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CommentListApiResponse'
+
+    post:
+      summary: Thêm bình luận vào công việc
+      tags:
+        - Comments
+      parameters:
+        - name: taskId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - content
+              properties:
+                content:
+                  type: string
+                  example: "Đã hoàn thành review PR liên quan."
+      responses:
+        '201':
+          description: Tạo bình luận thành công
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StandardApiResponse'
+
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  schemas:
+    StandardApiResponse:
+      type: object
+      required:
+        - success
+        - timestamp
+        - traceId
+      properties:
+        success:
+          type: boolean
+          example: true
+        data:
+          type: object
+        error:
+          type: object
+          nullable: true
+          properties:
+            code:
+              type: string
+            message:
+              type: string
+        timestamp:
+          type: string
+          format: date-time
+        traceId:
+          type: string
+
+    ProjectCreateRequest:
+      type: object
+      required:
+        - name
+        - key
+      properties:
+        name:
+          type: string
+          example: "Nâng cấp Hạ tầng IAM Keycloak"
+        key:
+          type: string
+          example: "IAM"
+        description:
+          type: string
+          example: "Dự án triển khai SSO tập trung cho toàn công ty"
+
+    ProjectItem:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        tenantId:
+          type: string
+        name:
+          type: string
+        key:
+          type: string
+        ownerUsername:
+          type: string
+        status:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+
+    TaskCreateRequest:
+      type: object
+      required:
+        - projectId
+        - columnId
+        - title
+      properties:
+        projectId:
+          type: string
+          format: uuid
+        columnId:
+          type: string
+          format: uuid
+        title:
+          type: string
+          example: "Cấu hình OIDC PKCE Client trong Keycloak"
+        description:
+          type: string
+        priority:
+          type: string
+          enum: [LOW, MEDIUM, HIGH, URGENT]
+          default: MEDIUM
+        dueDate:
+          type: string
+          format: date-time
+        assignees:
+          type: array
+          items:
+            type: string
+
+    TaskItem:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        taskCode:
+          type: string
+          example: "IAM-12"
+        title:
+          type: string
+        description:
+          type: string
+        priority:
+          type: string
+        reporterUsername:
+          type: string
+        columnId:
+          type: string
+          format: uuid
+        dueDate:
+          type: string
+          format: date-time
+
+    BoardApiResponse:
+      allOf:
+        - $ref: '#/components/schemas/StandardApiResponse'
+        - properties:
+            data:
+              type: object
+              properties:
+                projectId:
+                  type: string
+                  format: uuid
+                projectName:
+                  type: string
+                columns:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      id:
+                        type: string
+                        format: uuid
+                      title:
+                        type: string
+                        example: "IN_PROGRESS"
+                      position:
+                        type: integer
+                      tasks:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/TaskItem'
+
+    ProjectListApiResponse:
+      allOf:
+        - $ref: '#/components/schemas/StandardApiResponse'
+        - properties:
+            data:
+              type: array
+              items:
+                $ref: '#/components/schemas/ProjectItem'
+
+    ProjectSingleApiResponse:
+      allOf:
+        - $ref: '#/components/schemas/StandardApiResponse'
+        - properties:
+            data:
+              $ref: '#/components/schemas/ProjectItem'
+
+    TaskSingleApiResponse:
+      allOf:
+        - $ref: '#/components/schemas/StandardApiResponse'
+        - properties:
+            data:
+              $ref: '#/components/schemas/TaskItem'
+
+    CommentListApiResponse:
+      allOf:
+        - $ref: '#/components/schemas/StandardApiResponse'
+        - properties:
+            data:
+              type: array
+              items:
+                type: object
+                properties:
+                  id:
+                    type: string
+                    format: uuid
+                  authorUsername:
+                    type: string
+                  content:
+                    type: string
+                  createdAt:
+                    type: string
+                    format: date-time
+
+  responses:
+    UnauthorizedError:
+      description: Token không hợp lệ hoặc đã hết hạn
+    ForbiddenLicenseError:
+      description: Tổ chức chưa được kích hoạt bản quyền 'vihotask'

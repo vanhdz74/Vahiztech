@@ -1,0 +1,261 @@
+openapi: 3.0.3
+info:
+  title: Tenant & Organization Management API
+  description: API quản trị tổ chức, cấp phát Tenant và phân phối giấy phép bản quyền (Licensing) kết hợp Keycloak Admin REST API.
+  version: 1.0.0
+servers:
+  - url: http://localhost:8084
+    description: Core Admin Microservice
+  - url: https://api.vahiztech.com/admin
+    description: Production Admin Gateway
+
+security:
+  - BearerAuth: []
+
+paths:
+  /api/v1/admin/tenants:
+    get:
+      summary: Lấy danh sách tất cả các Tenant trong hệ thống
+      tags:
+        - Tenant Management
+      parameters:
+        - name: status
+          in: query
+          schema:
+            type: string
+            enum: [ACTIVE, SUSPENDED, TERMINATED]
+      responses:
+        '200':
+          description: Danh sách Tenant
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/TenantDetail'
+
+    post:
+      summary: Đăng ký & Cấp phát Tenant mới (Provisioning)
+      description: Tự động tạo bản ghi Tenant trong DB, tạo Organization trong Keycloak, tạo tài khoản 'org_admin' và gán các bản quyền ban đầu.
+      tags:
+        - Tenant Management
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TenantRegistrationRequest'
+      responses:
+        '201':
+          description: Khởi tạo Tenant thành công
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TenantDetail'
+
+  /api/v1/admin/tenants/{tenantId}:
+    get:
+      summary: Lấy chi tiết thông tin Tenant và các gói bản quyền
+      tags:
+        - Tenant Management
+      parameters:
+        - name: tenantId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Thông tin chi tiết Tenant
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TenantDetail'
+
+  /api/v1/admin/tenants/{tenantId}/licenses:
+    post:
+      summary: Cấp mới hoặc gia hạn gói bản quyền cho Tenant
+      tags:
+        - License Management
+      parameters:
+        - name: tenantId
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - licenseKey
+                - maxSeats
+                - validUntil
+              properties:
+                licenseKey:
+                  type: string
+                  enum: [coursedemy, vihotask]
+                maxSeats:
+                  type: integer
+                  example: 50
+                validUntil:
+                  type: string
+                  format: date-time
+      responses:
+        '200':
+          description: Cập nhật bản quyền thành công
+
+  /api/v1/admin/tenants/{tenantId}/users:
+    get:
+      summary: Lấy danh sách thành viên thuộc Tenant Organization
+      tags:
+        - User Management
+      parameters:
+        - name: tenantId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Danh sách người dùng
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/TenantUserItem'
+
+    post:
+      summary: Mời hoặc tạo thành viên mới vào Tenant Organization
+      tags:
+        - User Management
+      parameters:
+        - name: tenantId
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - username
+                - email
+                - temporaryPassword
+                - role
+              properties:
+                username:
+                  type: string
+                  example: "john_doe"
+                email:
+                  type: string
+                  format: email
+                  example: "john@tenant-alpha.com"
+                temporaryPassword:
+                  type: string
+                  example: "Pass@123456"
+                role:
+                  type: string
+                  enum: [org_admin, org_member]
+                  default: org_member
+                assignedLicenses:
+                  type: array
+                  items:
+                    type: string
+                  example: ["coursedemy", "vihotask"]
+      responses:
+        '201':
+          description: Tạo người dùng thành công và đồng bộ sang Keycloak
+
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  schemas:
+    TenantRegistrationRequest:
+      type: object
+      required:
+        - id
+        - name
+        - subdomain
+        - adminEmail
+        - adminPassword
+      properties:
+        id:
+          type: string
+          example: "tenant-gamma"
+        name:
+          type: string
+          example: "Gamma Solutions Ltd"
+        subdomain:
+          type: string
+          example: "gamma"
+        adminEmail:
+          type: string
+          format: email
+          example: "admin@gamma.com"
+        adminPassword:
+          type: string
+          example: "GammaAdmin@2026"
+        selectedLicenses:
+          type: array
+          items:
+            type: string
+          example: ["coursedemy", "vihotask"]
+
+    TenantDetail:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        subdomain:
+          type: string
+        status:
+          type: string
+        contactEmail:
+          type: string
+        activeLicenses:
+          type: array
+          items:
+            type: object
+            properties:
+              licenseKey:
+                type: string
+              maxSeats:
+                type: integer
+              validUntil:
+                type: string
+                format: date-time
+        createdAt:
+          type: string
+          format: date-time
+
+    TenantUserItem:
+      type: object
+      properties:
+        userId:
+          type: string
+          format: uuid
+        username:
+          type: string
+        email:
+          type: string
+        role:
+          type: string
+        licenses:
+          type: array
+          items:
+            type: string
+        enabled:
+          type: boolean

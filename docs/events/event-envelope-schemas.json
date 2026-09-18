@@ -1,0 +1,107 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "VahiztechKafkaEventEnvelope",
+  "description": "Cấu trúc vỏ bọc thông điệp sự kiện chuẩn hóa truyền qua Apache Kafka trong hệ sinh thái SaaS Multi-Tenant Vahiztech",
+  "type": "object",
+  "required": [
+    "eventId",
+    "tenantId",
+    "eventType",
+    "producer",
+    "version",
+    "timestamp",
+    "traceId",
+    "payload"
+  ],
+  "properties": {
+    "eventId": {
+      "type": "string",
+      "format": "uuid",
+      "description": "Định danh duy nhất của sự kiện (Idempotency Key)"
+    },
+    "tenantId": {
+      "type": "string",
+      "description": "Mã Tenant sở hữu sự kiện (Phục vụ phân vùng Partitioning theo Tenant trong Kafka)",
+      "examples": ["tenant-alpha", "tenant-beta"]
+    },
+    "eventType": {
+      "type": "string",
+      "enum": [
+        "TenantCreated",
+        "TenantLicenseUpdated",
+        "UserInvited",
+        "CourseCreated",
+        "CourseEnrolled",
+        "LessonCompleted",
+        "TaskCreated",
+        "TaskAssigned",
+        "TaskStatusChanged",
+        "TaskCommentAdded"
+      ]
+    },
+    "producer": {
+      "type": "string",
+      "enum": [
+        "admin-service",
+        "coursedemy-service",
+        "vihotask-service",
+        "quarkus-bff"
+      ]
+    },
+    "version": {
+      "type": "string",
+      "default": "1.0"
+    },
+    "timestamp": {
+      "type": "integer",
+      "description": "Thời điểm phát sinh sự kiện (Epoch milliseconds)"
+    },
+    "traceId": {
+      "type": "string",
+      "description": "OpenTelemetry Distributed Tracing ID"
+    },
+    "payload": {
+      "type": "object",
+      "description": "Dữ liệu chi tiết tùy theo từng loại sự kiện"
+    }
+  },
+  "definitions": {
+    "TenantCreatedPayload": {
+      "type": "object",
+      "required": ["tenantId", "name", "subdomain", "adminEmail"],
+      "properties": {
+        "tenantId": { "type": "string" },
+        "name": { "type": "string" },
+        "subdomain": { "type": "string" },
+        "adminEmail": { "type": "string", "format": "email" },
+        "initialLicenses": {
+          "type": "array",
+          "items": { "type": "string" }
+        }
+      }
+    },
+    "TaskAssignedPayload": {
+      "type": "object",
+      "required": ["taskId", "taskCode", "projectId", "assigneeUsername", "assignedBy"],
+      "properties": {
+        "taskId": { "type": "string", "format": "uuid" },
+        "taskCode": { "type": "string", "example": "IAM-12" },
+        "taskTitle": { "type": "string" },
+        "projectId": { "type": "string", "format": "uuid" },
+        "assigneeUsername": { "type": "string" },
+        "assignedBy": { "type": "string" }
+      }
+    },
+    "CourseEnrolledPayload": {
+      "type": "object",
+      "required": ["enrollmentId", "courseId", "userId", "username"],
+      "properties": {
+        "enrollmentId": { "type": "string", "format": "uuid" },
+        "courseId": { "type": "string", "format": "uuid" },
+        "courseTitle": { "type": "string" },
+        "userId": { "type": "string" },
+        "username": { "type": "string" }
+      }
+    }
+  }
+}

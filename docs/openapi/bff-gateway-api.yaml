@@ -1,0 +1,152 @@
+openapi: 3.0.3
+info:
+  title: Quarkus BFF & Real-time Notification Gateway API
+  description: Cổng giao tiếp hiệu năng cao (Backend-for-Frontend) và trung tâm điều phối thông báo thời gian thực xây dựng trên nền tảng Quarkus Reactive & GraalVM.
+  version: 1.0.0
+servers:
+  - url: http://localhost:8082
+    description: Local Quarkus Development Server
+  - url: https://api.vahiztech.com/gateway
+    description: Production Edge Gateway
+
+security:
+  - BearerAuth: []
+
+paths:
+  /api/v1/bff/dashboard:
+    get:
+      summary: Lấy dữ liệu tổng hợp Dashboard (Aggregation BFF)
+      description: Quarkus gọi đồng thời (non-blocking) CourseDemy và VihoTask để trả về bức tranh tổng thể cho Portal chỉ trong 1 request.
+      tags:
+        - Dashboard BFF
+      responses:
+        '200':
+          description: Dữ liệu tổng hợp thành công
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  tenantId:
+                    type: string
+                    example: "tenant-alpha"
+                  username:
+                    type: string
+                    example: "tenant_admin"
+                  roles:
+                    type: array
+                    items:
+                      type: string
+                    example: ["org_admin"]
+                  licenses:
+                    type: array
+                    items:
+                      type: string
+                    example: ["coursedemy", "vihotask"]
+                  coursedemyOverview:
+                    type: object
+                    properties:
+                      activeCoursesCount:
+                        type: integer
+                        example: 12
+                      enrolledStudentsCount:
+                        type: integer
+                        example: 85
+                  vihotaskOverview:
+                    type: object
+                    properties:
+                      inProgressTasksCount:
+                        type: integer
+                        example: 24
+                      dueTodayTasksCount:
+                        type: integer
+                        example: 5
+        '401':
+          description: Token không hợp lệ
+
+  /api/v1/bff/me:
+    get:
+      summary: Trích xuất và kiểm tra thông tin phiên làm việc từ Access Token
+      tags:
+        - Session Info
+      responses:
+        '200':
+          description: Chi tiết định danh của người dùng
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  userId:
+                    type: string
+                    format: uuid
+                  username:
+                    type: string
+                  email:
+                    type: string
+                  tenantId:
+                    type: string
+                  roles:
+                    type: array
+                    items:
+                      type: string
+                  licenses:
+                    type: array
+                    items:
+                      type: string
+
+  /api/v1/notifications/stream:
+    get:
+      summary: Kênh thông báo thời gian thực Server-Sent Events (SSE)
+      description: Kết nối luồng HTTP liên tục (Server-Sent Events) nhận các thông báo đẩy từ Kafka về công việc, khóa học và sự kiện tổ chức.
+      tags:
+        - Real-time Notifications
+      responses:
+        '200':
+          description: Luồng sự kiện SSE
+          content:
+            text/event-stream:
+              schema:
+                type: string
+                example: "data: {\"tenantId\":\"tenant-alpha\",\"title\":\"Giao việc mới\",\"message\":\"Bạn được phân công vào task IAM-12\",\"timestamp\":1756501200000}\n\n"
+
+  /api/v1/notifications/history:
+    get:
+      summary: Lấy lịch sử các thông báo gần nhất
+      tags:
+        - Real-time Notifications
+      parameters:
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 20
+      responses:
+        '200':
+          description: Danh sách thông báo
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    id:
+                      type: string
+                      format: uuid
+                    title:
+                      type: string
+                    message:
+                      type: string
+                    read:
+                      type: boolean
+                    createdAt:
+                      type: string
+                      format: date-time
+
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT

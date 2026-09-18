@@ -1,0 +1,349 @@
+openapi: 3.0.3
+info:
+  title: CourseDemy Microservice API
+  description: API dịch vụ học trực tuyến E-Learning trong hệ sinh thái SaaS Multi-Tenant Vahiztech. Yêu cầu xác thực JWT Token với license 'coursedemy'.
+  version: 1.0.0
+servers:
+  - url: http://localhost:8081
+    description: Local Spring Boot Development Server
+  - url: https://api.vahiztech.com/coursedemy
+    description: Production API Gateway
+
+security:
+  - BearerAuth: []
+
+paths:
+  /api/v1/courses:
+    get:
+      summary: Lấy danh sách khóa học của Tenant hiện tại
+      description: Tự động phân lập dữ liệu theo claim 'tenant_id' trong Token. Yêu cầu quyền license 'coursedemy'.
+      tags:
+        - Courses
+      parameters:
+        - name: status
+          in: query
+          required: false
+          schema:
+            type: string
+            enum: [DRAFT, PUBLISHED, ARCHIVED]
+        - name: page
+          in: query
+          schema:
+            type: integer
+            default: 0
+        - name: size
+          in: query
+          schema:
+            type: integer
+            default: 10
+      responses:
+        '200':
+          description: Danh sách khóa học thành công
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CourseListApiResponse'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenLicenseError'
+
+    post:
+      summary: Tạo mới một khóa học
+      description: Chỉ cho phép Quản trị viên Tenant ('org_admin') thực hiện.
+      tags:
+        - Courses
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CourseCreateRequest'
+      responses:
+        '201':
+          description: Tạo khóa học thành công
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CourseSingleApiResponse'
+        '400':
+          $ref: '#/components/responses/ValidationError'
+        '403':
+          $ref: '#/components/responses/ForbiddenAdminError'
+
+  /api/v1/courses/{courseId}:
+    get:
+      summary: Xem chi tiết một khóa học kèm danh sách chương & bài học
+      tags:
+        - Courses
+      parameters:
+        - name: courseId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Chi tiết khóa học
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CourseDetailApiResponse'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+
+  /api/v1/courses/{courseId}/enroll:
+    post:
+      summary: Ghi danh người dùng hiện tại vào khóa học
+      tags:
+        - Enrollments
+      parameters:
+        - name: courseId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Ghi danh thành công
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EnrollmentApiResponse'
+        '409':
+          description: Người dùng đã ghi danh trước đó
+
+  /api/v1/lessons/{lessonId}/progress:
+    post:
+      summary: Cập nhật tiến độ xem video bài học
+      tags:
+        - Progress
+      parameters:
+        - name: lessonId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - lastWatchedSecond
+              properties:
+                lastWatchedSecond:
+                  type: integer
+                  example: 145
+                isCompleted:
+                  type: boolean
+                  example: true
+      responses:
+        '200':
+          description: Cập nhật tiến độ thành công
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StandardApiResponse'
+
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: Access Token JWT do Keycloak 25 cấp, chứa claims 'tenant_id', 'licenses', 'roles'.
+
+  schemas:
+    StandardApiResponse:
+      type: object
+      required:
+        - success
+        - timestamp
+        - traceId
+      properties:
+        success:
+          type: boolean
+          example: true
+        data:
+          type: object
+        error:
+          $ref: '#/components/schemas/ErrorDetail'
+        timestamp:
+          type: string
+          format: date-time
+        traceId:
+          type: string
+          example: "req-7c9b20b2-4d2a-4a25"
+
+    ErrorDetail:
+      type: object
+      nullable: true
+      properties:
+        code:
+          type: string
+          example: "INSUFFICIENT_LICENSE"
+        message:
+          type: string
+          example: "Yêu cầu giấy phép bản quyền 'coursedemy' để truy cập tài nguyên này"
+        details:
+          type: array
+          items:
+            type: string
+
+    CourseCreateRequest:
+      type: object
+      required:
+        - title
+        - slug
+        - description
+      properties:
+        title:
+          type: string
+          example: "Lập trình Microservices với Spring Boot & Quarkus"
+        slug:
+          type: string
+          example: "microservices-spring-quarkus"
+        description:
+          type: string
+          example: "Khóa học chuyên sâu về kiến trúc Multi-tenant và Event-Driven"
+        thumbnailUrl:
+          type: string
+          format: uri
+        price:
+          type: number
+          format: float
+          example: 99.00
+
+    CourseItem:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        tenantId:
+          type: string
+          example: "tenant-alpha"
+        title:
+          type: string
+        slug:
+          type: string
+        instructorUsername:
+          type: string
+        status:
+          type: string
+          enum: [DRAFT, PUBLISHED, ARCHIVED]
+        createdAt:
+          type: string
+          format: date-time
+
+    CourseListApiResponse:
+      allOf:
+        - $ref: '#/components/schemas/StandardApiResponse'
+        - properties:
+            data:
+              type: object
+              properties:
+                items:
+                  type: array
+                  items:
+                    $ref: '#/components/schemas/CourseItem'
+                totalElements:
+                  type: integer
+                totalPages:
+                  type: integer
+
+    CourseSingleApiResponse:
+      allOf:
+        - $ref: '#/components/schemas/StandardApiResponse'
+        - properties:
+            data:
+              $ref: '#/components/schemas/CourseItem'
+
+    CourseDetailApiResponse:
+      allOf:
+        - $ref: '#/components/schemas/StandardApiResponse'
+        - properties:
+            data:
+              allOf:
+                - $ref: '#/components/schemas/CourseItem'
+                - properties:
+                    modules:
+                      type: array
+                      items:
+                        type: object
+                        properties:
+                          id:
+                            type: string
+                            format: uuid
+                          title:
+                            type: string
+                          lessons:
+                            type: array
+                            items:
+                              type: object
+                              properties:
+                                id:
+                                  type: string
+                                  format: uuid
+                                title:
+                                  type: string
+                                durationSeconds:
+                                  type: integer
+                                isFreePreview:
+                                  type: boolean
+
+    EnrollmentApiResponse:
+      allOf:
+        - $ref: '#/components/schemas/StandardApiResponse'
+        - properties:
+            data:
+              type: object
+              properties:
+                enrollmentId:
+                  type: string
+                  format: uuid
+                courseId:
+                  type: string
+                  format: uuid
+                progressPercent:
+                  type: number
+                enrolledAt:
+                  type: string
+                  format: date-time
+
+  responses:
+    UnauthorizedError:
+      description: Token không hợp lệ hoặc đã hết hạn
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/StandardApiResponse'
+    ForbiddenLicenseError:
+      description: Tenant chưa đăng ký license 'coursedemy'
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/StandardApiResponse'
+    ForbiddenAdminError:
+      description: Người dùng không có quyền quản trị viên ('org_admin')
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/StandardApiResponse'
+    ValidationError:
+      description: Dữ liệu gửi lên không hợp lệ
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/StandardApiResponse'
+    NotFoundError:
+      description: Không tìm thấy tài nguyên trong Tenant
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/StandardApiResponse'
