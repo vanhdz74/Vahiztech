@@ -1,0 +1,59 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+namespace: vahiztech-prod
+
+resources:
+  - ../../base
+  - hpa.yaml
+
+# Cấu hình đặc thù Production: Nâng Replicas mặc định >= 2 và gán TLS
+patches:
+  - target:
+      kind: Namespace
+      name: vahiztech
+    patch: |-
+      - op: replace
+        path: /metadata/name
+        value: vahiztech-prod
+
+  - target:
+      kind: Deployment
+      name: coursedemy-backend
+    patch: |-
+      - op: replace
+        path: /spec/replicas
+        value: 2
+
+  - target:
+      kind: Deployment
+      name: coursedemy-frontend
+    patch: |-
+      - op: replace
+        path: /spec/replicas
+        value: 2
+
+  - target:
+      kind: Deployment
+      name: vihotask-backend
+    patch: |-
+      - op: replace
+        path: /spec/replicas
+        value: 2
+
+  - target:
+      kind: Ingress
+      name: vahiztech-ingress
+    patch: |-
+      - op: add
+        path: /metadata/annotations/cert-manager.io~1cluster-issuer
+        value: letsencrypt-prod
+      - op: add
+        path: /spec/tls
+        value:
+          - hosts:
+              - auth.vahiztech.com
+              - coursedemy.vahiztech.com
+              - api.coursedemy.vahiztech.com
+              - api.vihotask.vahiztech.com
+            secretName: vahiztech-tls-cert

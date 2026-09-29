@@ -1,8 +1,8 @@
 {
   "id": "ecosystem-realm",
   "realm": "ecosystem-realm",
-  "displayName": "Ecosystem Multi-Tenant IAM",
-  "displayNameHtml": "<b>Ecosystem</b> Multi-Tenant IAM",
+  "displayName": "Vahiztech Ecosystem Hub & IAM",
+  "displayNameHtml": "<b>Vahiztech</b> Ecosystem Hub & IAM",
   "enabled": true,
   "sslRequired": "none",
   "registrationAllowed": true,
@@ -19,20 +19,26 @@
   "roles": {
     "realm": [
       {
+        "name": "ecosystem_super_admin",
+        "description": "Vahiztech Ecosystem Super Admin - Quản trị viên cấp cao nhất hệ sinh thái Vahiztech Hub",
+        "composite": false,
+        "clientRole": false
+      },
+      {
         "name": "org_admin",
-        "description": "Tenant Organization Administrator - Quản trị viên Tenant",
+        "description": "Tenant Organization Administrator - Quản trị viên Tenant / Khách hàng doanh nghiệp",
         "composite": false,
         "clientRole": false
       },
       {
         "name": "org_member",
-        "description": "Tenant Organization Member - Thành viên tiêu chuẩn của Tenant",
+        "description": "Tenant Organization Member - Thành viên nhân sự / Học viên của Tổ chức",
         "composite": false,
         "clientRole": false
       },
       {
         "name": "individual_user",
-        "description": "Individual / B2C User - Người dùng độc lập không thuộc Tổ chức",
+        "description": "Individual User / Free Tier - Người dùng cá nhân độc lập",
         "composite": false,
         "clientRole": false
       }
@@ -117,6 +123,42 @@
   ],
   "clients": [
     {
+      "clientId": "vahiztech-hub",
+      "name": "Vahiztech App Store & Central Hub Portal",
+      "description": "Cổng Trung tâm Vahiztech - Chợ ứng dụng SaaS và Trung tâm điều hành SSO (như Google Workspace Hub)",
+      "enabled": true,
+      "publicClient": true,
+      "bearerOnly": false,
+      "standardFlowEnabled": true,
+      "implicitFlowEnabled": false,
+      "directAccessGrantsEnabled": true,
+      "serviceAccountsEnabled": false,
+      "rootUrl": "http://localhost:3000",
+      "baseUrl": "http://localhost:3000",
+      "redirectUris": [
+        "http://localhost:3000/*",
+        "https://hub.vahiztech.com/*",
+        "http://localhost:3000/api/auth/callback/keycloak"
+      ],
+      "webOrigins": [
+        "http://localhost:3000",
+        "https://hub.vahiztech.com",
+        "+"
+      ],
+      "attributes": {
+        "pkce.code.challenge.method": "S256",
+        "post.logout.redirect.uris": "http://localhost:3000/*",
+        "access.token.lifespan": "3600"
+      },
+      "defaultClientScopes": [
+        "web-origins",
+        "profile",
+        "roles",
+        "email",
+        "tenant-info"
+      ]
+    },
+    {
       "clientId": "nextjs-portal",
       "name": "Next.js Portal SPA",
       "description": "Next.js Portal - Public Client sử dụng Authorization Code Flow với PKCE (S256)",
@@ -148,63 +190,15 @@
         "roles",
         "email",
         "tenant-info"
-      ],
-      "protocolMappers": [
-        {
-          "name": "tenant_id",
-          "protocol": "openid-connect",
-          "protocolMapper": "oidc-usermodel-attribute-mapper",
-          "consentRequired": false,
-          "config": {
-            "user.attribute": "tenant_id",
-            "claim.name": "tenant_id",
-            "jsonType.label": "String",
-            "id.token.claim": "true",
-            "access.token.claim": "true",
-            "userinfo.token.claim": "true",
-            "multivalued": "false",
-            "aggregate.attrs": "false"
-          }
-        },
-        {
-          "name": "licenses",
-          "protocol": "openid-connect",
-          "protocolMapper": "oidc-usermodel-attribute-mapper",
-          "consentRequired": false,
-          "config": {
-            "user.attribute": "licenses",
-            "claim.name": "licenses",
-            "jsonType.label": "String",
-            "id.token.claim": "true",
-            "access.token.claim": "true",
-            "userinfo.token.claim": "true",
-            "multivalued": "true",
-            "aggregate.attrs": "false"
-          }
-        },
-        {
-          "name": "realm-roles-claim",
-          "protocol": "openid-connect",
-          "protocolMapper": "oidc-usermodel-realm-role-mapper",
-          "consentRequired": false,
-          "config": {
-            "claim.name": "roles",
-            "jsonType.label": "String",
-            "id.token.claim": "true",
-            "access.token.claim": "true",
-            "userinfo.token.claim": "true",
-            "multivalued": "true"
-          }
-        }
       ]
     },
     {
       "clientId": "coursedemy-client",
-      "name": "CourseDemy Microservice Resource Server",
-      "description": "CourseDemy Service - Bearer-only Resource Server bảo vệ API bằng JWT Token",
+      "name": "CourseDemy Resource Server",
+      "description": "Backend API CourseDemy (E-Learning App) - Bearer-only Resource Server",
       "enabled": true,
-      "bearerOnly": true,
       "publicClient": false,
+      "bearerOnly": true,
       "standardFlowEnabled": false,
       "implicitFlowEnabled": false,
       "directAccessGrantsEnabled": false,
@@ -215,63 +209,15 @@
         "roles",
         "email",
         "tenant-info"
-      ],
-      "protocolMappers": [
-        {
-          "name": "tenant_id",
-          "protocol": "openid-connect",
-          "protocolMapper": "oidc-usermodel-attribute-mapper",
-          "consentRequired": false,
-          "config": {
-            "user.attribute": "tenant_id",
-            "claim.name": "tenant_id",
-            "jsonType.label": "String",
-            "id.token.claim": "true",
-            "access.token.claim": "true",
-            "userinfo.token.claim": "true",
-            "multivalued": "false",
-            "aggregate.attrs": "false"
-          }
-        },
-        {
-          "name": "licenses",
-          "protocol": "openid-connect",
-          "protocolMapper": "oidc-usermodel-attribute-mapper",
-          "consentRequired": false,
-          "config": {
-            "user.attribute": "licenses",
-            "claim.name": "licenses",
-            "jsonType.label": "String",
-            "id.token.claim": "true",
-            "access.token.claim": "true",
-            "userinfo.token.claim": "true",
-            "multivalued": "true",
-            "aggregate.attrs": "false"
-          }
-        },
-        {
-          "name": "realm-roles-claim",
-          "protocol": "openid-connect",
-          "protocolMapper": "oidc-usermodel-realm-role-mapper",
-          "consentRequired": false,
-          "config": {
-            "claim.name": "roles",
-            "jsonType.label": "String",
-            "id.token.claim": "true",
-            "access.token.claim": "true",
-            "userinfo.token.claim": "true",
-            "multivalued": "true"
-          }
-        }
       ]
     },
     {
       "clientId": "vihotask-client",
-      "name": "VihoTask Microservice Resource Server",
-      "description": "VihoTask Service - Bearer-only Resource Server bảo vệ API bằng JWT Token",
+      "name": "VihoTask Resource Server",
+      "description": "Backend API VihoTask (Project & Task Management App) - Bearer-only Resource Server",
       "enabled": true,
-      "bearerOnly": true,
       "publicClient": false,
+      "bearerOnly": true,
       "standardFlowEnabled": false,
       "implicitFlowEnabled": false,
       "directAccessGrantsEnabled": false,
@@ -282,70 +228,20 @@
         "roles",
         "email",
         "tenant-info"
-      ],
-      "protocolMappers": [
-        {
-          "name": "tenant_id",
-          "protocol": "openid-connect",
-          "protocolMapper": "oidc-usermodel-attribute-mapper",
-          "consentRequired": false,
-          "config": {
-            "user.attribute": "tenant_id",
-            "claim.name": "tenant_id",
-            "jsonType.label": "String",
-            "id.token.claim": "true",
-            "access.token.claim": "true",
-            "userinfo.token.claim": "true",
-            "multivalued": "false",
-            "aggregate.attrs": "false"
-          }
-        },
-        {
-          "name": "licenses",
-          "protocol": "openid-connect",
-          "protocolMapper": "oidc-usermodel-attribute-mapper",
-          "consentRequired": false,
-          "config": {
-            "user.attribute": "licenses",
-            "claim.name": "licenses",
-            "jsonType.label": "String",
-            "id.token.claim": "true",
-            "access.token.claim": "true",
-            "userinfo.token.claim": "true",
-            "multivalued": "true",
-            "aggregate.attrs": "false"
-          }
-        },
-        {
-          "name": "realm-roles-claim",
-          "protocol": "openid-connect",
-          "protocolMapper": "oidc-usermodel-realm-role-mapper",
-          "consentRequired": false,
-          "config": {
-            "claim.name": "roles",
-            "jsonType.label": "String",
-            "id.token.claim": "true",
-            "access.token.claim": "true",
-            "userinfo.token.claim": "true",
-            "multivalued": "true"
-          }
-        }
       ]
     },
     {
       "clientId": "backend-admin-client",
-      "name": "Backend Admin Client",
-      "description": "Backend Admin Service - Confidential Client với Service Account có quyền manage-users, view-users",
+      "name": "Backend Admin Service Client",
+      "description": "Confidential Client dành cho Core Admin Backend gọi Keycloak Admin REST API",
       "enabled": true,
-      "clientAuthenticatorType": "client-secret",
-      "secret": "backend_admin_super_secret_2026",
-      "bearerOnly": false,
       "publicClient": false,
+      "bearerOnly": false,
       "standardFlowEnabled": false,
       "implicitFlowEnabled": false,
       "directAccessGrantsEnabled": false,
       "serviceAccountsEnabled": true,
-      "authorizationServicesEnabled": false,
+      "secret": "backend_admin_super_secret_2026",
       "defaultClientScopes": [
         "web-origins",
         "profile",
@@ -416,6 +312,138 @@
           "query-groups",
           "query-clients"
         ]
+      }
+    },
+    {
+      "username": "vahiztech_super_admin",
+      "email": "superadmin@vahiztech.com",
+      "firstName": "Vahiztech",
+      "lastName": "SuperAdmin",
+      "enabled": true,
+      "emailVerified": true,
+      "credentials": [
+        {
+          "type": "password",
+          "value": "SuperAdmin@123456",
+          "temporary": false
+        }
+      ],
+      "realmRoles": [
+        "ecosystem_super_admin",
+        "org_admin"
+      ],
+      "attributes": {
+        "tenant_id": [
+          "vahiztech-hq"
+        ],
+        "licenses": [
+          "vahiztech_hub",
+          "coursedemy",
+          "vihotask"
+        ]
+      }
+    },
+    {
+      "username": "alpha_corp_admin",
+      "email": "admin@alpha-corp.com",
+      "firstName": "Alice",
+      "lastName": "AlphaAdmin",
+      "enabled": true,
+      "emailVerified": true,
+      "credentials": [
+        {
+          "type": "password",
+          "value": "Admin@123456",
+          "temporary": false
+        }
+      ],
+      "realmRoles": [
+        "org_admin"
+      ],
+      "attributes": {
+        "tenant_id": [
+          "alpha-corp"
+        ],
+        "licenses": [
+          "coursedemy",
+          "vihotask"
+        ]
+      }
+    },
+    {
+      "username": "alpha_employee_tasks",
+      "email": "staff@alpha-corp.com",
+      "firstName": "Bob",
+      "lastName": "Staff",
+      "enabled": true,
+      "emailVerified": true,
+      "credentials": [
+        {
+          "type": "password",
+          "value": "Staff@123456",
+          "temporary": false
+        }
+      ],
+      "realmRoles": [
+        "org_member"
+      ],
+      "attributes": {
+        "tenant_id": [
+          "alpha-corp"
+        ],
+        "licenses": [
+          "vihotask"
+        ]
+      }
+    },
+    {
+      "username": "beta_school_student",
+      "email": "student@beta-school.edu.vn",
+      "firstName": "Charlie",
+      "lastName": "Student",
+      "enabled": true,
+      "emailVerified": true,
+      "credentials": [
+        {
+          "type": "password",
+          "value": "Student@123456",
+          "temporary": false
+        }
+      ],
+      "realmRoles": [
+        "org_member"
+      ],
+      "attributes": {
+        "tenant_id": [
+          "beta-school"
+        ],
+        "licenses": [
+          "coursedemy"
+        ]
+      }
+    },
+    {
+      "username": "free_tier_user",
+      "email": "freeuser@gmail.com",
+      "firstName": "David",
+      "lastName": "FreeUser",
+      "enabled": true,
+      "emailVerified": true,
+      "credentials": [
+        {
+          "type": "password",
+          "value": "Free@123456",
+          "temporary": false
+        }
+      ],
+      "realmRoles": [
+        "individual_user"
+      ],
+      "attributes": {
+        "tenant_id": [
+          "free-tier"
+        ],
+        "licenses": []
       }
     },
     {

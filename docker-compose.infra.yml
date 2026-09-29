@@ -1,0 +1,83 @@
+# Chạy độc lập hạ tầng nền tảng
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: vahiztech-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-keycloak}
+      POSTGRES_USER: ${POSTGRES_USER:-keycloak}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-keycloak_secure_pass_2026}
+      POSTGRES_MULTIPLE_DATABASES: "coursedemy_db,vihotask_db"
+    ports:
+      - "${POSTGRES_PORT:-5432}:5432"
+    volumes:
+      - auth_postgres_data:/var/lib/postgresql/data
+      - ./infra/postgres/init-scripts/01-init-multi-postgres-dbs.sh:/docker-entrypoint-initdb.d/init-multi-postgres-dbs.sh:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      start_period: 5s
+
+  keycloak:
+    build:
+      context: ./infra/keycloak
+      dockerfile: Dockerfile
+    image: vahiztech/iam-keycloak:25.0.6
+    container_name: vahiztech-keycloak
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      KC_DB: postgres
+      KC_DB_URL: jdbc:postgresql://postgres:5432/${POSTGRES_DB:-keycloak}
+      KC_DB_USERNAME: ${POSTGRES_USER:-keycloak}
+      KC_DB_PASSWORD: ${POSTGRES_PASSWORD:-keycloak_secure_pass_2026}
+      KEYCLOAK_ADMIN: ${KEYCLOAK_ADMIN:-admin}
+      KEYCLOAK_ADMIN_PASSWORD: ${KEYCLOAK_ADMIN_PASSWORD:-admin_master_password_2026}
+      KC_HTTP_ENABLED: "true"
+      KC_HOSTNAME_STRICT: "false"
+      KC_HOSTNAME_STRICT_HTTPS: "false"
+      KC_LOG_LEVEL: INFO
+      KC_HEALTH_ENABLED: "true"
+      KC_METRICS_ENABLED: "true"
+      KC_FEATURES: "organization"
+    command:
+      - "start-dev"
+      - "--import-realm"
+      - "--features=organization"
+    ports:
+      - "${KEYCLOAK_PORT:-8080}:8080"
+    volumes:
+      - ./infra/keycloak/realms/ecosystem-realm.json:/opt/keycloak/data/import/realm-config.json:ro
+      - ./infra/keycloak/themes:/opt/keycloak/themes:ro
+
+  kafka:
+    image: confluentinc/cp-kafka:7.6.1
+    container_name: vahiztech-kafka
+    restart: unless-stopped
+    environment:
+      KAFKA_NODE_ID: 1
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: "CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT"
+      KAFKA_ADVERTISED_LISTENERS: "PLAINTEXT://kafka:9092,PLAINTEXT_HOST://localhost:29092"
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_PROCESS_ROLES: "broker,controller"
+      KAFKA_CONTROLLER_QUORUM_VOTERS: "1@kafka:29093"
+      KAFKA_LISTENERS: "PLAINTEXT://0.0.0.0:9092,CONTROLLER://0.0.0.0:29093,PLAINTEXT_HOST://0.0.0.0:29092"
+      KAFKA_INTER_BROKER_LISTENER_NAME: "PLAINTEXT"
+      KAFKA_CONTROLLER_LISTENER_NAMES: "CONTROLLER"
+      CLUSTER_ID: "4L622nShTUiTWhAQdialog"
+    ports:
+      - "29092:29092"
+
+networks:
+  default:
+    name: vahiztech_net
+
+volumes:
+  auth_postgres_data:
+    name: auth_postgres_data
+    driver: local

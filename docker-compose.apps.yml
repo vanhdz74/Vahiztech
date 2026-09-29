@@ -1,0 +1,56 @@
+# Quản lý các microservices
+services:
+  coursedemy-backend:
+    build:
+      context: ./apps/coursedemy/back-end
+      dockerfile: Dockerfile
+    container_name: vahiztech-coursedemy-backend
+    restart: unless-stopped
+    ports:
+      - "${COURSEDEMY_BACKEND_PORT:-8081}:8080"
+    environment:
+      SPRING_DATASOURCE_URL: ${SPRING_DATASOURCE_URL:-jdbc:postgresql://postgres:5432/coursedemy_db}
+      SPRING_DATASOURCE_USERNAME: ${POSTGRES_USER:-keycloak}
+      SPRING_DATASOURCE_PASSWORD: ${POSTGRES_PASSWORD:-keycloak_secure_pass_2026}
+      SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_JWK_SET_URI: http://keycloak:8080/realms/ecosystem-realm/protocol/openid-connect/certs
+      JWT_SECRET: ${JWT_SECRET:-ZGV2LW9ubHktY291cnNlZGVteS1qd3Qtc2VjcmV0LTEyMzQ1Ng==}
+      FRONTEND_URL: ${FRONTEND_URL:-http://localhost:3000}
+
+  coursedemy-frontend:
+    build:
+      context: ./apps/coursedemy/front-end
+      dockerfile: Dockerfile
+      args:
+        NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_COURSEDEMY_API:-http://localhost:8081}
+    container_name: vahiztech-coursedemy-frontend
+    restart: unless-stopped
+    ports:
+      - "${COURSEDEMY_FRONTEND_PORT:-3000}:3000"
+    environment:
+      AUTH_SECRET: ${AUTH_SECRET:-vahiztech-dev-secret-auth-key-2026}
+      AUTH_URL: http://localhost:3000
+      NEXTAUTH_URL: http://localhost:3000
+      BACKEND_INTERNAL_URL: http://coursedemy-backend:8080
+      NEXT_PUBLIC_API_URL: http://localhost:8081
+    depends_on:
+      - coursedemy-backend
+
+  vihotask-backend:
+    build:
+      context: ./apps/vihotask/backend
+      dockerfile: Dockerfile
+    container_name: vahiztech-vihotask-backend
+    restart: unless-stopped
+    ports:
+      - "${VIHOTASK_BACKEND_PORT:-8083}:8080"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/vihotask_db
+      SPRING_DATASOURCE_USERNAME: ${POSTGRES_USER:-keycloak}
+      SPRING_DATASOURCE_PASSWORD: ${POSTGRES_PASSWORD:-keycloak_secure_pass_2026}
+      PORT: 8080
+      JWT_SECRET: ${JWT_SECRET:-ZGV2LW9ubHktdmlob3Rhc2stand0LXNlY3JldC0xMjM0NTY=}
+      SPRING_PROFILES_ACTIVE: uat
+
+networks:
+  default:
+    name: vahiztech_net

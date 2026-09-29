@@ -1,0 +1,16 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: coursedemy-frontend
+  namespace: vahiztech
+  labels:
+    app.kubernetes.io/name: coursedemy-frontend
+    app.kubernetes.io/part-of: coursedemy
+spec:
+  type: ClusterIP
+  ports:
+    - port: 3000
+      targetPort: 3000
+      name: http
+  selector:
+    app.kubernetes.io/name: coursedemy-frontend

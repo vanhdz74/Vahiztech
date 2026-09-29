@@ -1,0 +1,51 @@
+name: CD - Deploy to Kubernetes (Dev/Staging)
+
+on:
+  push:
+    branches: [ develop ]
+    paths:
+      - 'k8s/**'
+      - 'infra/**'
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: 'Chỉ kiểm tra Dry-Run (true/false)'
+        required: true
+        default: 'false'
+        type: choice
+        options:
+          - 'true'
+          - 'false'
+
+jobs:
+  deploy-dev:
+    name: Deploy to Dev Cluster
+    runs-on: ubuntu-latest
+    environment: dev
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Set up Kubeconfig
+        run: |
+          mkdir -p $HOME/.kube
+          echo "${{ secrets.KUBECONFIG_DEV }}" > $HOME/.kube/config
+          chmod 600 $HOME/.kube/config
+        if: env.KUBECONFIG_DEV != ''
+        env:
+          KUBECONFIG_DEV: ${{ secrets.KUBECONFIG_DEV }}
+
+      - name: Set up Kustomize
+        uses: imranismail/setup-kustomize@v2
+
+      - name: Deploy to K8s Dev Environment
+        run: |
+          if [ "${{ github.event.inputs.dry_run }}" = "true" ] || [ -z "${{ secrets.KUBECONFIG_DEV }}" ]; then
+            echo "==> [DRY RUN MODE] Render manifests cho K8s Dev..."
+            kustomize build k8s/overlays/dev
+          else
+            echo "==> [APPLY MODE] Áp dụng cấu hình lên K8s Dev Cluster..."
+            kubectl apply -k k8s/overlays/dev
+            kubectl rollout status deployment/keycloak -n vahiztech --timeout=180s || true
+          fi

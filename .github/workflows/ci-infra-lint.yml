@@ -1,0 +1,54 @@
+name: CI - Infrastructure & Manifests Linter
+
+on:
+  push:
+    branches: [ main, develop ]
+    paths:
+      - 'k8s/**'
+      - 'infra/**'
+      - 'docker-compose*.yml'
+      - '.github/workflows/ci-infra-lint.yml'
+  pull_request:
+    branches: [ main, develop ]
+    paths:
+      - 'k8s/**'
+      - 'infra/**'
+      - 'docker-compose*.yml'
+
+jobs:
+  validate-configs:
+    name: Validate K8s Manifests & Compose Files
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+        with:
+          submodules: false
+
+      - name: Set up Kustomize
+        uses: imranismail/setup-kustomize@v2
+
+      - name: Validate Keycloak Realm JSON
+        run: |
+          echo "==> Kiểm tra tính hợp lệ của file JSON SSO Realm..."
+          jq empty infra/keycloak/realms/ecosystem-realm.json
+          echo "[+] File Realm JSON hoàn toàn hợp lệ!"
+
+      - name: Validate Docker Compose Specifications
+        run: |
+          echo "==> Kiểm tra tính hợp lệ của Docker Compose files..."
+          docker compose -f docker-compose.infra.yml config --quiet
+          docker compose -f docker-compose.apps.yml config --quiet
+          docker compose config --quiet
+          echo "[+] Cấu trúc Docker Compose hợp lệ!"
+
+      - name: Validate Kubernetes Manifests (Kustomize Build)
+        run: |
+          echo "==> Kiểm tra Kustomize Build cho K8s Dev Overlay..."
+          kustomize build k8s/overlays/dev > /dev/null
+          
+          echo "==> Kiểm tra Kustomize Build cho K8s Prod Overlay..."
+          kustomize build k8s/overlays/prod > /dev/null
+          
+          echo "[+] Tất cả K8s Manifests (Base & Overlays) hợp lệ và sẵn sàng deploy!"

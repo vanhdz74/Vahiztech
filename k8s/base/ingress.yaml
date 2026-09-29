@@ -1,0 +1,59 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: vahiztech-ingress
+  namespace: vahiztech
+  labels:
+    app.kubernetes.io/name: vahiztech-ingress
+  annotations:
+    kubernetes.io/ingress.class: "nginx"
+    nginx.ingress.kubernetes.io/proxy-body-size: "50m"
+    nginx.ingress.kubernetes.io/proxy-buffer-size: "128k"
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
+spec:
+  rules:
+    # 1. IAM & SSO Authentication Portal
+    - host: auth.vahiztech.com
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: keycloak
+                port:
+                  number: 8080
+
+    # 2. CourseDemy Platform (Frontend & API)
+    - host: coursedemy.vahiztech.com
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: coursedemy-frontend
+                port:
+                  number: 3000
+    - host: api.coursedemy.vahiztech.com
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: coursedemy-backend
+                port:
+                  number: 8080
+
+    # 3. VihoTask Platform (API)
+    - host: api.vihotask.vahiztech.com
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: vihotask-backend
+                port:
+                  number: 8080

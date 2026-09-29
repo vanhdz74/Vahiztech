@@ -1,0 +1,55 @@
+name: CD - Deploy to Kubernetes (Production)
+
+on:
+  push:
+    tags:
+      - 'v*.*.*'
+  workflow_dispatch:
+    inputs:
+      confirm_deploy:
+        description: 'Xác nhận deploy lên Production (gõ YES để xác nhận)'
+        required: true
+        default: 'NO'
+
+jobs:
+  deploy-prod:
+    name: Deploy to Production Cluster
+    runs-on: ubuntu-latest
+    environment: production # Kích hoạt GitHub Environment Approval Gate
+
+    steps:
+      - name: Verify Confirmation
+        if: github.event_name == 'workflow_dispatch'
+        run: |
+          if [ "${{ github.event.inputs.confirm_deploy }}" != "YES" ]; then
+            echo "[-] Hủy deploy: Bạn chưa xác nhận YES!"
+            exit 1
+          fi
+
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Set up Kubeconfig
+        run: |
+          mkdir -p $HOME/.kube
+          echo "${{ secrets.KUBECONFIG_PROD }}" > $HOME/.kube/config
+          chmod 600 $HOME/.kube/config
+        if: env.KUBECONFIG_PROD != ''
+        env:
+          KUBECONFIG_PROD: ${{ secrets.KUBECONFIG_PROD }}
+
+      - name: Set up Kustomize
+        uses: imranismail/setup-kustomize@v2
+
+      - name: Deploy to K8s Production Environment
+        run: |
+          if [ -z "${{ secrets.KUBECONFIG_PROD }}" ]; then
+            echo "==> [SIMULATION / DRY RUN] Render manifests cho K8s Prod..."
+            kustomize build k8s/overlays/prod
+          else
+            echo "==> [APPLY MODE] Áp dụng cấu hình lên K8s Production Cluster..."
+            kubectl apply -k k8s/overlays/prod
+            kubectl rollout status deployment/coursedemy-backend -n vahiztech-prod --timeout=300s
+            kubectl rollout status deployment/coursedemy-frontend -n vahiztech-prod --timeout=300s
+            kubectl rollout status deployment/vihotask-backend -n vahiztech-prod --timeout=300s
+          fi

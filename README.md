@@ -48,14 +48,29 @@ Dự án thiết lập toàn bộ hạ tầng Identity and Access Management (IA
 
 ```
 .
+├── .github/workflows/     # CI/CD Workflows (Lint manifests, Deploy Dev/Prod, Submodule Sync)
 ├── apps/                  # Các ứng dụng & Client Microservices trong hệ sinh thái
 │   ├── coursedemy/        # [Git Submodule] -> github.com/vanhdz74/CourseDemy_v2
 │   └── vihotask/          # [Git Submodule] -> github.com/vanhdz74/VihoTask
-├── docker-compose.yml     # Khởi chạy PostgreSQL 16 và Keycloak 25+
-├── realm-config.json      # File định nghĩa Realm, Clients, Roles, Protocol Mappers & Users
+├── infra/                 # Toàn bộ Hạ tầng Dùng chung & Central IAM/SSO
+│   ├── keycloak/
+│   │   ├── realms/        # File định nghĩa Realm, Clients, Roles, Protocol Mappers & Users
+│   │   │   └── ecosystem-realm.json
+│   │   ├── themes/        # Custom login/registration branding themes
+│   │   ├── extensions/    # Keycloak custom SPIs & Providers
+│   │   └── scripts/       # Script test-token.sh và export-realm.sh
+│   └── postgres/          # Cấu hình DB Hub & Initialization scripts
+│       └── init-scripts/
+│           └── 01-init-multi-postgres-dbs.sh
+├── k8s/                   # Kubernetes Manifests (Kustomize Base & Overlays Dev/Prod)
+│   ├── base/
+│   └── overlays/
+├── docker-compose.yml     # Master Docker Compose Hub (include infra & apps)
+├── docker-compose.infra.yml # Khởi chạy PostgreSQL 16, Keycloak 25+, Kafka
+├── docker-compose.apps.yml  # Khởi chạy Microservices apps
+├── docs/                  # Tài liệu kiến trúc, Database, OpenAPI, DevOps guides
 ├── .env.example           # File mẫu biến môi trường
 ├── .env                   # File cấu hình môi trường thực thi
-├── test-token.sh          # Script bash kiểm thử cấp token và giải mã JWT claims
 ├── .gitmodules            # Cấu hình liên kết Git Submodules
 └── README.md              # Tài liệu hướng dẫn chi tiết
 ```
@@ -130,20 +145,30 @@ docker compose ps
 - **Realm Quản trị**: Chọn realm `ecosystem-realm` trên menu góc trái trên.
 
 ### Bước 3: Chạy kịch bản kiểm thử tự động
-Chúng tôi đã cung cấp sẵn script `test-token.sh` để xác minh mọi luồng:
+Chúng tôi đã cung cấp sẵn script `test-token.sh` trong `infra/keycloak/scripts/` để xác minh mọi luồng:
 ```bash
-./test-token.sh
+./infra/keycloak/scripts/test-token.sh
+```
+
+*(Tùy chọn) Để xuất cấu hình Realm hiện tại ra file JSON:*
+```bash
+./infra/keycloak/scripts/export-realm.sh
 ```
 
 ---
 
-## 5. Tài khoản Kiểm thử Mặc định (Pre-seeded Users)
+## 5. Tài khoản Kiểm thử Mặc định (Pre-seeded User Personas)
 
-| Username | Password | Realm Role | `tenant_id` | `licenses` |
-| :--- | :--- | :--- | :--- | :--- |
-| `tenant_admin` | `Admin@123456` | `org_admin` | `tenant-alpha` | `["coursedemy", "vihotask"]` |
-| `tenant_member` | `Member@123456` | `org_member` | `tenant-alpha` | `["coursedemy"]` |
-| `individual_user` | `User@123456` | `individual_user` | `tenant-beta` | `["vihotask"]` |
+Hệ thống mô phỏng mô hình **Google Workspace Hub (Cha) -> Google Apps (Con)**:
+
+| Username | Password | Realm Role | `tenant_id` | `licenses` (Quyền truy cập Apps) | Mô tả vai trò |
+| :--- | :--- | :--- | :--- | :--- | :--- |
+| `vahiztech_super_admin` | `SuperAdmin@123456` | `ecosystem_super_admin` | `vahiztech-hq` | `["vahiztech_hub", "coursedemy", "vihotask"]` | Super Admin hệ thống Vahiztech Hub |
+| `alpha_corp_admin` | `Admin@123456` | `org_admin` | `alpha-corp` | `["coursedemy", "vihotask"]` | Admin Doanh nghiệp Alpha (Mua Full cả 2 Apps) |
+| `alpha_employee_tasks` | `Staff@123456` | `org_member` | `alpha-corp` | `["vihotask"]` | Nhân viên Alpha (Chỉ dùng VihoTask, chặn CourseDemy) |
+| `beta_school_student` | `Student@123456` | `org_member` | `beta-school` | `["coursedemy"]` | Học viên trường Beta (Chỉ học CourseDemy, chặn VihoTask) |
+| `free_tier_user` | `Free@123456` | `individual_user` | `free-tier` | `[]` | Người dùng miễn phí (Chưa mua license -> Chặn vào Apps) |
+
 
 ---
 
