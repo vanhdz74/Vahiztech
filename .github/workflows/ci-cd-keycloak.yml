@@ -6,11 +6,15 @@ on:
     paths:
       - 'infra/keycloak/**'
       - '.github/workflows/ci-cd-keycloak.yml'
-  workflow_dispatch: # Cho phép bấm nút "Run workflow" thủ công trên GitHub UI
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  packages: write
 
 jobs:
-  build-and-push-dockerhub:
-    name: Build & Push Keycloak Image to Docker Hub
+  build-and-push:
+    name: Build & Push Keycloak Image
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Code
@@ -19,17 +23,38 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
-      - name: Log in to Docker Hub
+      # Đăng nhập GitHub Container Registry (Tự động 100% không cần cài thêm secret)
+      - name: Log in to GitHub Packages (GHCR)
         uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      # Đăng nhập Docker Hub nếu người dùng đã thêm secret
+      - name: Log in to Docker Hub (Optional)
+        if: env.DOCKERHUB_USER != '' && env.DOCKERHUB_PASS != ''
+        uses: docker/login-action@v3
+        env:
+          DOCKERHUB_USER: ${{ secrets.DOCKERHUB_USERNAME }}
+          DOCKERHUB_PASS: ${{ secrets.DOCKERHUB_TOKEN }}
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Lowercase Repository Name
+        id: repo_name
+        run: |
+          echo "REPO_LOWER=${GITHUB_REPOSITORY,,}" >> $GITHUB_ENV
+          echo "OWNER_LOWER=${GITHUB_REPOSITORY_OWNER,,}" >> $GITHUB_ENV
 
       - name: Extract Metadata (Tags & Labels)
         id: meta
         uses: docker/metadata-action@v5
         with:
-          images: ${{ secrets.DOCKERHUB_USERNAME }}/vahiztech-iam
+          images: |
+            ghcr.io/${{ env.REPO_LOWER }}-iam
+            ${{ secrets.DOCKERHUB_USERNAME != '' && format('{0}/vahiztech-iam', secrets.DOCKERHUB_USERNAME) || '' }}
           tags: |
             type=raw,value=latest,enable={{is_default_branch}}
             type=sha,prefix=,format=short
@@ -48,16 +73,16 @@ jobs:
 
   deploy-to-server:
     name: Deploy to Server / Kubernetes
-    needs: build-and-push-dockerhub
+    needs: build-and-push
     runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/main' # Chỉ tự động deploy khi push vào nhánh main
+    if: github.ref == 'refs/heads/main'
 
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
 
       # KỊCH BẢN A: NẾU DEPLOY LÊN KUBERNETES CLUSTER (K8S)
-      - name: Deploy to Kubernetes Cluster (Optional)
+      - name: Deploy to Kubernetes Cluster
         if: env.KUBECONFIG_DATA != ''
         env:
           KUBECONFIG_DATA: ${{ secrets.KUBECONFIG }}
@@ -66,12 +91,11 @@ jobs:
           echo "${{ secrets.KUBECONFIG }}" > $HOME/.kube/config
           chmod 600 $HOME/.kube/config
           
-          # Cập nhật image tag mới nhất trong K8s deployment
-          kubectl set image deployment/keycloak keycloak=${{ secrets.DOCKERHUB_USERNAME }}/vahiztech-iam:${{ github.sha }} -n vahiztech || kubectl apply -k k8s/overlays/prod
-          kubectl rollout status deployment/keycloak -n vahiztech --timeout=180s
+          kubectl apply -k k8s/overlays/prod
+          kubectl rollout status deployment/keycloak -n vahiztech-prod --timeout=180s || true
 
       # KỊCH BẢN B: NẾU DEPLOY LÊN SERVER VPS (SSH + DOCKER COMPOSE)
-      - name: Deploy to VPS via SSH (Optional)
+      - name: Deploy to VPS via SSH
         if: env.SERVER_HOST != ''
         uses: appleboy/ssh-action@v1.0.3
         env:
