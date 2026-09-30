@@ -32,13 +32,25 @@ spec:
             - name: KC_DB_URL
               value: jdbc:postgresql://postgres:5432/keycloak
             - name: KC_DB_USERNAME
-              value: keycloak
+              valueFrom:
+                secretKeyRef:
+                  name: vahiztech-secrets
+                  key: POSTGRES_USER
             - name: KC_DB_PASSWORD
-              value: keycloak_secure_pass_2026
+              valueFrom:
+                secretKeyRef:
+                  name: vahiztech-secrets
+                  key: POSTGRES_PASSWORD
             - name: KEYCLOAK_ADMIN
-              value: admin
+              valueFrom:
+                secretKeyRef:
+                  name: vahiztech-secrets
+                  key: KEYCLOAK_ADMIN
             - name: KEYCLOAK_ADMIN_PASSWORD
-              value: admin_master_password_2026
+              valueFrom:
+                secretKeyRef:
+                  name: vahiztech-secrets
+                  key: KEYCLOAK_ADMIN_PASSWORD
             - name: KC_HTTP_ENABLED
               value: "true"
             - name: KC_HOSTNAME_STRICT

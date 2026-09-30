@@ -5,6 +5,7 @@ namespace: vahiztech
 
 resources:
   - namespace.yaml
+  - secrets.yaml
   - postgres/postgres-service.yaml
   - postgres/postgres-statefulset.yaml
   - keycloak/keycloak-service.yaml

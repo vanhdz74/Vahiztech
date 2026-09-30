@@ -27,13 +27,22 @@ spec:
             - name: SPRING_DATASOURCE_URL
               value: jdbc:postgresql://postgres:5432/coursedemy_db
             - name: SPRING_DATASOURCE_USERNAME
-              value: keycloak
+              valueFrom:
+                secretKeyRef:
+                  name: vahiztech-secrets
+                  key: POSTGRES_USER
             - name: SPRING_DATASOURCE_PASSWORD
-              value: keycloak_secure_pass_2026
+              valueFrom:
+                secretKeyRef:
+                  name: vahiztech-secrets
+                  key: POSTGRES_PASSWORD
             - name: SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_JWK_SET_URI
               value: http://keycloak:8080/realms/ecosystem-realm/protocol/openid-connect/certs
             - name: JWT_SECRET
-              value: ZGV2LW9ubHktY291cnNlZGVteS1qd3Qtc2VjcmV0LTEyMzQ1Ng==
+              valueFrom:
+                secretKeyRef:
+                  name: vahiztech-secrets
+                  key: COURSEDEMY_JWT_SECRET
             - name: FRONTEND_URL
               value: http://localhost:3000
           resources:

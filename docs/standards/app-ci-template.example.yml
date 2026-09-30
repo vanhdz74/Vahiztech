@@ -59,3 +59,33 @@ jobs:
             npm run lint || true
             npm run build
           fi
+
+  deploy:   # JOB 3 – Deploy to K8s
+    name: Deploy to Kubernetes
+    needs: [backend-ci, frontend-ci]
+    runs-on: ubuntu-latest
+    environment: production   # manual approve
+    if: github.ref == 'refs/heads/main'
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      # Setup Helm + Kubeconfig
+      - name: Setup Helm
+        uses: azure/setup-helm@v4
+        with:
+          version: 'latest'
+
+      - name: Setup Kubeconfig
+        run: |
+          mkdir -p $HOME/.kube
+          echo "${{ secrets.KUBECONFIG }}" > $HOME/.kube/config
+          chmod 600 $HOME/.kube/config
+
+      # Run Helm Upgrade / Deploy
+      - name: Deploy with Helm
+        run: |
+          helm upgrade --install ${{ github.event.repository.name }} ./chart \
+            --namespace vahiztech-prod \
+            --create-namespace \
+            --set image.tag=${{ github.sha }}

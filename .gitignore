@@ -1,20 +1,203 @@
-# Environment variables
+# ==============================================================================
+# VAHIZTECH ECOSYSTEM - .gitignore
+# Comprehensive ignore rules for Monorepo, Microservices, Infrastructure & Tools
+# ==============================================================================
+
+# ------------------------------------------------------------------------------
+# 1. Environment & Secrets
+# ------------------------------------------------------------------------------
 .env
 .env.local
 .env.*.local
+.env.development
+.env.test
+.env.production
+.env.staging
+.env.uat
+# Keep example templates committed
+!.env.example
+!.env.*.example
 
-# Logs
-logs
+# Certificates & Private Keys
+*.pem
+*.key
+*.p12
+*.pfx
+*.jks
+*.keystore
+*.cer
+*.crt
+
+# Kubernetes / Cloud Secrets & Credentials
+kubeconfig*
+*.kubeconfig
+*secret*.yaml
+*secret*.yml
+secrets.yaml
+secret.yaml
+*.secret.yaml
+*.secret.yml
+*.dec.yaml
+*.plain.yaml
+
+# Whitelist example/template secret files
+!*secret*.example.yaml
+!*secret*.example.yml
+!*secret*.template.yaml
+!*secret*.template.yml
+
+# ------------------------------------------------------------------------------
+# 2. Node.js / Frontend / Next.js / Puppeteer
+# ------------------------------------------------------------------------------
+node_modules/
+.pnp
+.pnp.js
+.yarn/cache
+.yarn/unplugged
+.yarn/build-state.yml
+.yarn/install-state.gz
+
+# Next.js build output
+.next/
+out/
+
+# Build & Bundler outputs
+dist/
+build/
+.turbo/
+.cache/
+.parcel-cache/
+.eslintcache
+.stylelintcache
+
+# ------------------------------------------------------------------------------
+# 3. Java / Spring Boot / Maven / Gradle (Backends)
+# ------------------------------------------------------------------------------
+# Compiled class files
+*.class
+
+# Log files
 *.log
+logs/
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
+pnpm-debug.log*
+hs_err_pid*
+replay_pid*
 
-# OS Files
-.DS_Store
-Thumbs.db
+# Package files
+*.jar
+*.war
+*.nar
+*.ear
+*.zip
+*.tar.gz
+*.rar
 
-# Docker volumes / persistence data
+# Maven
+target/
+pom.xml.tag
+pom.xml.releaseBackup
+pom.xml.versionsBackup
+pom.xml.next
+release.properties
+dependency-reduced-pom.xml
+buildNumber.properties
+.mvn/timing.properties
+.mvn/wrapper/maven-wrapper.jar
+!mvnw
+!mvnw.cmd
+
+# Gradle
+.gradle/
+build/
+!gradle/wrapper/gradle-wrapper.jar
+!gradlew
+!gradlew.cmd
+
+# ------------------------------------------------------------------------------
+# 4. Databases, Persistent Volumes & Infrastructure Data
+# ------------------------------------------------------------------------------
+# Docker volumes & local data directories
 postgres_data/
+auth_postgres_data/
 keycloak_data/
-`   
+kafka_data/
+zookeeper_data/
+redis_data/
+
+# Database dumps & temp backups
+*.dump
+*.sql.gz
+*.rdb
+
+# ------------------------------------------------------------------------------
+# 5. Testing & Code Coverage
+# ------------------------------------------------------------------------------
+coverage/
+.nyc_output/
+test-results/
+.jest/
+
+# ------------------------------------------------------------------------------
+# 6. IDEs & Editors
+# ------------------------------------------------------------------------------
+# macOS
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+
+# Windows
+Thumbs.db
+Thumbs.db:encryptable
+ehthumbs.db
+ehthumbs_vista.db
+Desktop.ini
+
+# JetBrains (IntelliJ IDEA, WebStorm, PyCharm)
+.idea/
+*.iml
+*.iws
+*.ipr
+out/
+
+# Visual Studio Code
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+*.code-workspace
+
+# Eclipse
+.project
+.classpath
+.settings/
+.springBeans
+
+# NetBeans
+nbproject/private/
+build/
+nbbuild/
+dist/
+nbdist/
+.nb-gradle/
+
+# Vim / Emacs / Sublime
+*~
+*.swp
+*.swo
+*.sublime-project
+*.sublime-workspace
+
+# ------------------------------------------------------------------------------
+# 7. Temporary & Miscellaneous
+# ------------------------------------------------------------------------------
+tmp/
+temp/
+*.tmp
+*.bak
+*.sw?

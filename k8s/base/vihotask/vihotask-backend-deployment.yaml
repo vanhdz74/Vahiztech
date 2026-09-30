@@ -27,13 +27,22 @@ spec:
             - name: SPRING_DATASOURCE_URL
               value: jdbc:postgresql://postgres:5432/vihotask_db
             - name: SPRING_DATASOURCE_USERNAME
-              value: keycloak
+              valueFrom:
+                secretKeyRef:
+                  name: vahiztech-secrets
+                  key: POSTGRES_USER
             - name: SPRING_DATASOURCE_PASSWORD
-              value: keycloak_secure_pass_2026
+              valueFrom:
+                secretKeyRef:
+                  name: vahiztech-secrets
+                  key: POSTGRES_PASSWORD
             - name: PORT
               value: "8080"
             - name: JWT_SECRET
-              value: ZGV2LW9ubHktdmlob3Rhc2stand0LXNlY3JldC0xMjM0NTY=
+              valueFrom:
+                secretKeyRef:
+                  name: vahiztech-secrets
+                  key: VIHOTASK_JWT_SECRET
             - name: SPRING_PROFILES_ACTIVE
               value: uat
           resources:

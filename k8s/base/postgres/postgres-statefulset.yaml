@@ -28,9 +28,15 @@ spec:
             - name: POSTGRES_DB
               value: keycloak
             - name: POSTGRES_USER
-              value: keycloak
+              valueFrom:
+                secretKeyRef:
+                  name: vahiztech-secrets
+                  key: POSTGRES_USER
             - name: POSTGRES_PASSWORD
-              value: keycloak_secure_pass_2026
+              valueFrom:
+                secretKeyRef:
+                  name: vahiztech-secrets
+                  key: POSTGRES_PASSWORD
             - name: PGDATA
               value: /var/lib/postgresql/data/pgdata
           resources:
