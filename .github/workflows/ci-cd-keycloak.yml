@@ -1,11 +1,12 @@
+# Đặt tên
 name: CI/CD - Build & Deploy Keycloak IAM
 
 on:
   push:
-    branches: [ main, develop ]
+    branches: [main, develop]
     paths:
-      - 'infra/keycloak/**'
-      - '.github/workflows/ci-cd-keycloak.yml'
+      - "infra/keycloak/**"
+      - ".github/workflows/ci-cd-keycloak.yml"
   workflow_dispatch:
 
 permissions:
@@ -13,6 +14,7 @@ permissions:
   packages: write
 
 jobs:
+  # Job 1
   build-and-push:
     name: Build & Push Keycloak Image
     runs-on: ubuntu-latest

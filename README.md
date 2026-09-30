@@ -126,33 +126,33 @@ Access Token được cấu hình tự động nhúng các Claims phục vụ Mu
 
 ---
 
-## 4. Hướng dẫn Khởi chạy & Kiểm thử
+## 4. Hướng dẫn Khởi chạy & Kiểm thử Nhanh (Quickstart)
 
-### Bước 1: Khởi động Containers
+### Khởi chạy 1-Click (All-in-One Local Starter):
 ```bash
+./scripts/start-local.sh
+```
+
+Hoặc sử dụng Docker Compose:
+```bash
+# Khởi chạy SSO + Giao diện Hệ thống Portal:
+docker compose -f docker-compose.infra.yml -f docker-compose.portal.yml up -d
+
+# Hoặc khởi chạy toàn bộ Ecosystem:
 docker compose up -d
 ```
 
-Kiểm tra trạng thái containers:
-```bash
-docker compose ps
-```
+### Các Cổng Dịch Vụ & Giao Diện Hoạt Động:
+- 🌐 **Giao diện Hệ thống Trung tâm (Hub Portal)**: [http://localhost:3000](http://localhost:3000)
+- 🔐 **Keycloak IAM Admin Console**: [http://localhost:8080](http://localhost:8080) (`admin` / `admin_master_password_2026`)
+- 🏢 **Keycloak Ecosystem Realm Management**: [http://localhost:8080/admin/master/console/#/ecosystem-realm](http://localhost:8080/admin/master/console/#/ecosystem-realm)
+- 👤 **Keycloak Account Self-service Console**: [http://localhost:8080/realms/ecosystem-realm/account](http://localhost:8080/realms/ecosystem-realm/account)
+- 🐘 **PostgreSQL 16 Multi-DB Database**: `localhost:5433` (DB: `keycloak`, `coursedemy_db`, `vihotask_db`)
+- 📦 **Apache Kafka Event Streaming**: `localhost:29092`
 
-### Bước 2: Truy cập Giao diện Quản trị Keycloak
-- **URL**: `http://localhost:8080`
-- **Master Admin Username**: `admin` (xem trong `.env`)
-- **Master Admin Password**: `admin_master_password_2026` (xem trong `.env`)
-- **Realm Quản trị**: Chọn realm `ecosystem-realm` trên menu góc trái trên.
-
-### Bước 3: Chạy kịch bản kiểm thử tự động
-Chúng tôi đã cung cấp sẵn script `test-token.sh` trong `infra/keycloak/scripts/` để xác minh mọi luồng:
+### Chạy Kịch bản Kiểm thử Tự động SSO Token:
 ```bash
 ./infra/keycloak/scripts/test-token.sh
-```
-
-*(Tùy chọn) Để xuất cấu hình Realm hiện tại ra file JSON:*
-```bash
-./infra/keycloak/scripts/export-realm.sh
 ```
 
 ---

@@ -2,18 +2,20 @@
 # VAHIZTECH ECOSYSTEM - MASTER DOCKER COMPOSE HUB
 # ==============================================================================
 # File điều phối trung tâm tích hợp các module theo tiêu chuẩn Docker Compose v2:
-#   - docker-compose.infra.yml : Hạ tầng dùng chung (PostgreSQL 16, Keycloak 25+, Kafka)
-#   - docker-compose.apps.yml  : Microservices (CourseDemy Backend & Frontend, VihoTask)
+#   - docker-compose.infra.yml  : Hạ tầng dùng chung (PostgreSQL 16, Keycloak 25+, Kafka)
+#   - docker-compose.portal.yml : Cổng điều hành trung tâm (Central SSO & App Hub Portal)
+#   - docker-compose.apps.yml   : Microservices (CourseDemy Backend & Frontend, VihoTask)
 #
 # Cách sử dụng:
 #   - Khởi chạy toàn bộ hệ sinh thái:  docker compose up -d
 #   - Chỉ chạy hạ tầng (Infra only):   docker compose -f docker-compose.infra.yml up -d
-#   - Chỉ chạy ứng dụng (Apps only):   docker compose -f docker-compose.apps.yml up -d
+#   - Chỉ chạy cổng Portal & SSO:      docker compose -f docker-compose.infra.yml -f docker-compose.portal.yml up -d
 #   - Dừng toàn bộ hệ thống:          docker compose down
 # ==============================================================================
 
 include:
   - path: ./docker-compose.infra.yml
+  - path: ./docker-compose.portal.yml
   - path: ./docker-compose.apps.yml
 
 networks:

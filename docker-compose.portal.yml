@@ -1,0 +1,18 @@
+# Vahiztech Hub & Central SSO Portal Frontend
+services:
+  portal:
+    build:
+      context: ./apps/portal
+      dockerfile: Dockerfile
+    container_name: vahiztech-portal-hub
+    restart: unless-stopped
+    ports:
+      - "${PORTAL_PORT:-3000}:3000"
+    environment:
+      VITE_KEYCLOAK_URL: ${KEYCLOAK_URL:-http://localhost:8080}
+      VITE_KEYCLOAK_REALM: ${KEYCLOAK_REALM:-ecosystem-realm}
+      VITE_KEYCLOAK_CLIENT_ID: ${NEXT_PUBLIC_KEYCLOAK_CLIENT_ID:-vahiztech-hub}
+
+networks:
+  default:
+    name: vahiztech_net

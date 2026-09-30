@@ -1,0 +1,72 @@
+name: CI/CD - Build & Push Portal Image
+
+on:
+  push:
+    branches: [main, develop]
+    paths:
+      - "apps/portal/**"
+      - ".github/workflows/ci-cd-portal.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  packages: write
+
+jobs:
+  build-and-push-portal:
+    name: Build & Push Portal Image
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      # Đăng nhập GitHub Container Registry (Tự động 100%)
+      - name: Log in to GitHub Packages (GHCR)
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      # Đăng nhập Docker Hub (Nếu có secret)
+      - name: Log in to Docker Hub (Optional)
+        if: env.DOCKER_USER != '' && env.DOCKER_PASS != ''
+        uses: docker/login-action@v3
+        env:
+          DOCKER_USER: ${{ secrets.DOCKER_USERNAME || secrets.DOCKERHUB_USERNAME }}
+          DOCKER_PASS: ${{ secrets.DOCKER_TOKEN || secrets.DOCKERHUB_TOKEN }}
+        with:
+          username: ${{ env.DOCKER_USER }}
+          password: ${{ env.DOCKER_PASS }}
+
+      - name: Setup Repository Names
+        id: repo_name
+        run: |
+          echo "REPO_LOWER=${GITHUB_REPOSITORY,,}" >> $GITHUB_ENV
+          echo "DOCKER_USER_VAL=${{ secrets.DOCKER_USERNAME || secrets.DOCKERHUB_USERNAME }}" >> $GITHUB_ENV
+
+      - name: Extract Metadata (Tags & Labels)
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: |
+            ghcr.io/${{ env.REPO_LOWER }}-portal
+            ${{ env.DOCKER_USER_VAL != '' && format('{0}/vahiztech-portal', env.DOCKER_USER_VAL) || '' }}
+          tags: |
+            type=raw,value=latest,enable={{is_default_branch}}
+            type=sha,prefix=,format=short
+            type=ref,event=branch
+
+      - name: Build and Push Docker Image
+        uses: docker/build-push-action@v5
+        with:
+          context: ./apps/portal
+          file: ./apps/portal/Dockerfile
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
