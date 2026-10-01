@@ -2,13 +2,12 @@ import React from 'react';
 import { 
   LayoutGrid, 
   Bookmark, 
-  Camera, 
-  Video, 
-  PenTool, 
-  FileText, 
-  Box, 
-  FlaskConical, 
+  Layers, 
   Rocket, 
+  Sparkles, 
+  Briefcase, 
+  Palette, 
+  FileText, 
   SlidersHorizontal 
 } from 'lucide-react';
 import { CATEGORIES } from '../data/appsData';
@@ -26,26 +25,24 @@ export const CategoryFilterTabs: React.FC<CategoryFilterTabsProps> = ({
   onOpenUpdatesModal,
 }) => {
   const getIcon = (iconName: string, isActive: boolean) => {
-    const iconClass = `w-3.5 h-3.5 ${isActive ? 'text-black' : 'text-slate-300'}`;
+    const iconClass = `w-3.5 h-3.5 ${isActive ? 'text-white' : 'text-slate-500 dark:text-slate-400'}`;
     switch (iconName) {
       case 'Grid':
         return <LayoutGrid className={iconClass} />;
       case 'Bookmark':
         return <Bookmark className={iconClass} />;
-      case 'Camera':
-        return <Camera className={iconClass} />;
-      case 'Film':
-        return <Video className={iconClass} />;
-      case 'Palette':
-        return <PenTool className={iconClass} />;
-      case 'FileText':
-        return <FileText className={iconClass} />;
-      case 'Box':
-        return <Box className={iconClass} />;
-      case 'Flask':
-        return <FlaskConical className={iconClass} />;
+      case 'Layers':
+        return <Layers className={iconClass} />;
       case 'Rocket':
         return <Rocket className={iconClass} />;
+      case 'Sparkles':
+        return <Sparkles className={iconClass} />;
+      case 'Briefcase':
+        return <Briefcase className={iconClass} />;
+      case 'Palette':
+        return <Palette className={iconClass} />;
+      case 'FileText':
+        return <FileText className={iconClass} />;
       default:
         return <LayoutGrid className={iconClass} />;
     }
@@ -62,10 +59,10 @@ export const CategoryFilterTabs: React.FC<CategoryFilterTabsProps> = ({
             <button
               key={cat.id}
               onClick={() => onSelectCategory(cat.id)}
-              className={`h-8 px-3.5 rounded-full text-xs font-medium flex items-center gap-2 whitespace-nowrap transition-all ${
+              className={`h-8 px-3.5 rounded-full text-xs font-semibold flex items-center gap-2 whitespace-nowrap transition-all duration-200 ${
                 isActive
-                  ? 'bg-white text-slate-950 font-semibold shadow-sm'
-                  : 'bg-[#1c1e23] hover:bg-[#252830] text-slate-300 border border-[#2b2f38]'
+                  ? 'bg-blue-600 text-white shadow-md shadow-blue-500/20'
+                  : 'bg-white dark:bg-[#121723] hover:bg-blue-50 dark:hover:bg-slate-800 text-slate-600 dark:text-slate-300 border border-blue-100/90 dark:border-slate-800 hover:border-blue-200 dark:hover:border-slate-700 shadow-2xs'
               }`}
             >
               {getIcon(cat.icon, isActive)}
@@ -79,9 +76,9 @@ export const CategoryFilterTabs: React.FC<CategoryFilterTabsProps> = ({
       <div className="shrink-0 pl-2">
         <button
           onClick={onOpenUpdatesModal}
-          className="h-8 px-3 rounded-full text-xs font-medium text-slate-300 hover:text-white hover:bg-[#20232a] flex items-center gap-2 border border-[#2b2f38] transition whitespace-nowrap"
+          className="h-8 px-3.5 rounded-full text-xs font-semibold text-slate-600 dark:text-slate-300 hover:text-blue-600 dark:hover:text-blue-400 bg-white dark:bg-[#121723] hover:bg-blue-50 dark:hover:bg-slate-800 flex items-center gap-2 border border-blue-100 dark:border-slate-800 shadow-2xs transition whitespace-nowrap"
         >
-          <SlidersHorizontal className="w-3.5 h-3.5 text-slate-400" />
+          <SlidersHorizontal className="w-3.5 h-3.5 text-blue-500 dark:text-blue-400" />
           <span>Quản lý cập nhật</span>
         </button>
       </div>
