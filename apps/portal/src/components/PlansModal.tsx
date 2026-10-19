@@ -1,6 +1,6 @@
 import React from 'react';
 import { X, Check, Sparkles, ShieldCheck, Zap } from 'lucide-react';
-import { CreativeCloudLogo } from './AppIcons';
+import { VahiztechIcon } from './AppIcons';
 
 interface PlansModalProps {
   isOpen: boolean;
@@ -52,7 +52,7 @@ export const PlansModal: React.FC<PlansModalProps> = ({
                 <span className="text-xs text-slate-500 dark:text-slate-400"> / tháng</span>
               </div>
               <p className="text-xs text-slate-500 dark:text-slate-400 mb-4">
-                Lựa chọn 1 ứng dụng bất kỳ như CourseDemy, VihoTask hoặc Photoshop kèm lưu trữ đám mây.
+                Lựa chọn 1 ứng dụng bất kỳ như VCourseDemy hoặc VihoTask kèm lưu trữ đám mây.
               </p>
               <ul className="space-y-2 text-xs text-slate-700 dark:text-slate-300">
                 <li className="flex items-center gap-2">
@@ -91,12 +91,12 @@ export const PlansModal: React.FC<PlansModalProps> = ({
               </div>
               <div className="text-[11px] text-slate-400 dark:text-slate-500 line-through mb-4">US$67.99/tháng</div>
               <p className="text-xs text-slate-600 dark:text-slate-300 mb-4 leading-relaxed">
-                Trọn bộ CourseDemy, VihoTask, Vahiz AI Copilot, 1TB Cloud Vault và các công cụ sáng tạo mở rộng.
+                Trọn bộ VCourseDemy, VihoTask, Vahiz AI Copilot, 1TB Cloud Storage và toàn quyền truy cập các app sắp ra mắt.
               </p>
               <ul className="space-y-2 text-xs text-slate-700 dark:text-slate-300">
                 <li className="flex items-center gap-2">
                   <Check className="w-4 h-4 text-blue-600 dark:text-blue-400 shrink-0" />
-                  <span>CourseDemy E-learning & VihoTask Pro</span>
+                  <span>VCourseDemy E-learning & VihoTask Pro</span>
                 </li>
                 <li className="flex items-center gap-2">
                   <Check className="w-4 h-4 text-blue-600 dark:text-blue-400 shrink-0" />
@@ -135,7 +135,7 @@ export const PlansModal: React.FC<PlansModalProps> = ({
                 </li>
                 <li className="flex items-center gap-2">
                   <Check className="w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0" />
-                  <span>CourseDemy & VihoTask không giới hạn user</span>
+                  <span>VCourseDemy & VihoTask không giới hạn user</span>
                 </li>
                 <li className="flex items-center gap-2">
                   <Check className="w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0" />

@@ -2,13 +2,13 @@ import React, { useEffect, useState, useMemo } from 'react';
 import { TopNavbar } from './components/TopNavbar';
 import { Sidebar, SidebarTab } from './components/Sidebar';
 import { CategoryFilterTabs } from './components/CategoryFilterTabs';
-import { FeaturedProCard } from './components/FeaturedProCard';
 import { AppCard } from './components/AppCard';
 import { ProductDetailModal } from './components/ProductDetailModal';
 import { PlansModal } from './components/PlansModal';
 import { UpdatesModal } from './components/UpdatesModal';
 import { SSODrawerModal } from './components/SSODrawerModal';
 import { DirectLoginModal } from './components/DirectLoginModal';
+import { RegistrationModal } from './components/RegistrationModal';
 import { PublicLandingPage } from './components/PublicLandingPage';
 import { HomeOverview } from './components/HomeOverview';
 import { APPS_DATA, AppItem } from './data/appsData';
@@ -18,7 +18,8 @@ import {
   loginWithCredentials, 
   exchangeAuthorizationCode, 
   clearSession, 
-  TEST_PERSONAS 
+  TEST_PERSONAS,
+  getAppLaunchUrl
 } from './services/keycloak';
 import { 
   CheckCircle2, 
@@ -85,6 +86,7 @@ export const App: React.FC = () => {
   const [isUpdatesModalOpen, setIsUpdatesModalOpen] = useState<boolean>(false);
   const [isSSODrawerOpen, setIsSSODrawerOpen] = useState<boolean>(false);
   const [isLoginModalOpen, setIsLoginModalOpen] = useState<boolean>(false);
+  const [isRegisterModalOpen, setIsRegisterModalOpen] = useState<boolean>(false);
   const [loginError, setLoginError] = useState<string | null>(null);
 
   const showToast = (text: string, type: 'success' | 'error' = 'success') => {
@@ -97,6 +99,14 @@ export const App: React.FC = () => {
     try {
       const urlParams = new URLSearchParams(window.location.search);
       const code = urlParams.get('code');
+      const error = urlParams.get('error');
+      const errorDescription = urlParams.get('error_description');
+
+      if (error) {
+        showToast(`Lỗi xác thực OIDC SSO: ${errorDescription || error}`, 'error');
+        window.history.replaceState({}, document.title, window.location.pathname);
+        return;
+      }
 
       if (code) {
         setIsLoading(true);
@@ -149,6 +159,39 @@ export const App: React.FC = () => {
     showToast('Đã đăng xuất. Bạn đang ở giao diện công khai.', 'success');
   };
 
+  const handleLaunchApp = (app: AppItem | { id: string; name: string; targetUrl?: string; licenseKey?: string }) => {
+    if (!app.targetUrl) {
+      if ('actionType' in app) {
+        setSelectedAppDetail(app as AppItem);
+      }
+      return;
+    }
+
+    // 1. Kiểm tra đăng nhập
+    if (!currentUser) {
+      showToast(`Vui lòng đăng nhập để truy cập ${app.name}!`, 'error');
+      setIsLoginModalOpen(true);
+      return;
+    }
+
+    // 2. Kiểm tra bản quyền / quyền hạn người dùng
+    const isSuperAdmin = currentUser.roles?.includes('ecosystem_super_admin') || currentUser.roles?.includes('org_admin');
+    const hasLicense = app.licenseKey === 'public' || !app.licenseKey || isSuperAdmin
+      ? true
+      : (currentUser.licenses?.includes(app.licenseKey) || currentUser.licenses?.includes('vahiztech_hub'));
+
+    if (!hasLicense) {
+      showToast(`Tài khoản @${currentUser.preferred_username} chưa được cấp quyền truy cập ${app.name}! Cần license '${app.licenseKey}'.`, 'error');
+      setIsPlansModalOpen(true);
+      return;
+    }
+
+    // 3. Đã có quyền: Truyền SSO token sang app con
+    const launchUrl = getAppLaunchUrl(app.targetUrl, rawToken);
+    window.open(launchUrl, '_blank');
+    showToast(`Đang chuyển hướng SSO tới ${app.name}...`, 'success');
+  };
+
   // Filtered Apps Computation
   const filteredApps = useMemo(() => {
     return APPS_DATA.filter((app) => {
@@ -177,9 +220,7 @@ export const App: React.FC = () => {
     });
   }, [selectedCategory, searchQuery, currentUser]);
 
-  const featuredProApp = APPS_DATA.find((app) => app.id === 'cc_pro');
-  const regularApps = filteredApps.filter((app) => app.id !== 'cc_pro');
-  const showFeaturedProCard = (selectedCategory === 'all' || selectedCategory === 'ecosystem' || selectedCategory === 'ai_creative') && !searchQuery.trim() && featuredProApp;
+  const regularApps = filteredApps;
 
   return (
     <div className="min-h-screen bg-[#f1f5fb] dark:bg-[#0b0f17] text-slate-800 dark:text-slate-100 flex flex-col selection:bg-blue-600 selection:text-white antialiased font-sans transition-colors duration-200">
@@ -203,6 +244,7 @@ export const App: React.FC = () => {
             onOpenPlans={() => setIsPlansModalOpen(true)}
             onOpenSSODrawer={() => setIsSSODrawerOpen(true)}
             onOpenLoginModal={() => setIsLoginModalOpen(true)}
+            onOpenRegisterModal={() => setIsRegisterModalOpen(true)}
             onLogout={handleLogout}
             currentUser={currentUser}
             isDarkMode={isDarkMode}
@@ -225,9 +267,11 @@ export const App: React.FC = () => {
               {activeSidebarTab === 'home' ? (
                 <HomeOverview
                   currentUser={currentUser}
+                  rawToken={rawToken}
                   onNavigateToApps={() => setActiveSidebarTab('apps')}
                   onOpenSSODrawer={() => setIsSSODrawerOpen(true)}
                   onOpenPlans={() => setIsPlansModalOpen(true)}
+                  onLaunchApp={handleLaunchApp}
                 />
               ) : activeSidebarTab === 'apps' ? (
                 <div className="max-w-[1440px] mx-auto space-y-6">
@@ -244,9 +288,9 @@ export const App: React.FC = () => {
                     <div>
                       <h2 className="text-lg lg:text-xl font-black text-slate-900 dark:text-slate-100 tracking-tight">
                         {selectedCategory === 'your_apps' 
-                          ? 'Ứng dụng đã kích hoạt giấy phép của bạn' 
-                          : selectedCategory === 'future_concept'
-                          ? 'Ý tưởng tương lai & Roadmap phát triển'
+                          ? 'Ứng dụng đang hoạt động (Live)' 
+                          : selectedCategory === 'coming_soon'
+                          ? 'Ứng dụng sắp ra mắt & Lộ trình phát triển 🚀'
                           : 'Hệ sinh thái ứng dụng Vahiztech Hub'}
                       </h2>
                       <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
@@ -263,16 +307,7 @@ export const App: React.FC = () => {
 
                   {/* Apps Grid */}
                   <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 lg:gap-5">
-                    {/* 1. Featured Pro Suite Card */}
-                    {showFeaturedProCard && (
-                      <FeaturedProCard
-                        app={featuredProApp}
-                        onOpenPlans={() => setIsPlansModalOpen(true)}
-                        onOpenDetails={setSelectedAppDetail}
-                      />
-                    )}
-
-                    {/* 2. Regular App Cards */}
+                    {/* Regular App Cards */}
                     {regularApps.map((app) => {
                       const isLicensed = app.licenseKey ? (currentUser?.licenses?.includes(app.licenseKey) || currentUser?.licenses?.includes('vahiztech_hub')) : false;
                       return (
@@ -281,6 +316,7 @@ export const App: React.FC = () => {
                           app={app}
                           onOpenDetails={setSelectedAppDetail}
                           onOpenPlans={() => setIsPlansModalOpen(true)}
+                          onLaunchApp={handleLaunchApp}
                           isLicensed={isLicensed}
                         />
                       );
@@ -293,7 +329,7 @@ export const App: React.FC = () => {
                       <Search className="w-9 h-9 text-blue-400 mx-auto mb-3" />
                       <h3 className="text-base font-bold text-slate-800 dark:text-slate-200">Không tìm thấy ứng dụng phù hợp</h3>
                       <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 max-w-md mx-auto">
-                        Vui lòng thử tìm kiếm với từ khóa khác như "CourseDemy", "VihoTask", "AI", "Cloud" hoặc chọn danh mục "Tất cả ứng dụng".
+                        Vui lòng thử tìm kiếm với từ khóa khác như "VCourseDemy", "VihoTask", "AI", "Cloud" hoặc chọn danh mục "Tất cả ứng dụng".
                       </p>
                       <button
                         onClick={() => {
@@ -313,7 +349,7 @@ export const App: React.FC = () => {
                   <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-4 border-b border-blue-100 dark:border-slate-800 gap-3">
                     <div>
                       <h2 className="text-xl font-black text-slate-900 dark:text-slate-100">Tài nguyên & Vahiz Cloud Vault</h2>
-                      <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">Quản lý các tài sản video khóa học CourseDemy, tài liệu Sprint VihoTask và tệp thiết kế</p>
+                      <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">Quản lý các tài sản video khóa học VCourseDemy, tài liệu Sprint VihoTask và tệp thiết kế</p>
                     </div>
                     <button className="h-9 px-4 rounded-full bg-blue-600 hover:bg-blue-700 text-xs font-bold text-white flex items-center gap-2 transition shadow-sm shadow-blue-500/20 active:scale-95 self-start sm:self-auto">
                       <UploadCloud className="w-4 h-4" />
@@ -353,7 +389,7 @@ export const App: React.FC = () => {
                       </div>
                       <div>
                         <h4 className="text-sm font-bold text-slate-900 dark:text-slate-100">Khóa học React & Next.js Pro</h4>
-                        <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">CourseDemy Media • 24 video bài giảng</p>
+                        <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">VCourseDemy Media • 24 video bài giảng</p>
                       </div>
                     </div>
 
@@ -401,18 +437,18 @@ export const App: React.FC = () => {
                 /* Creation Studio View */
                 <div className="max-w-[1440px] mx-auto space-y-6">
                   <div className="pb-4 border-b border-blue-100 dark:border-slate-800">
-                    <h2 className="text-xl font-black text-slate-900 dark:text-slate-100">Vahiz AI Generative Studio & Ý Tưởng Tương Lai</h2>
-                    <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">Tạo nội dung đa phương thức, sinh code AI, tạo hình ảnh Firefly và mẫu thiết kế tức thì</p>
+                    <h2 className="text-xl font-black text-slate-900 dark:text-slate-100">Vahiz AI Copilot & Ứng Dụng Sắp Ra Mắt</h2>
+                    <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">Khám phá các công nghệ trợ lý AI, lưu trữ đám mây và lớp học trực tuyến đang được nghiên cứu & phát triển</p>
                   </div>
 
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
                     <div className="p-6 rounded-3xl bg-gradient-to-br from-purple-50 via-white to-purple-50/40 dark:from-purple-950/20 dark:via-[#121723] dark:to-[#121723] border border-purple-200 dark:border-purple-800/40 shadow-sm hover:shadow-md transition">
-                      <div className="w-10 h-10 rounded-2xl bg-purple-600 text-white flex items-center justify-center mb-3 shadow-md shadow-purple-500/20">
+                      <div className="w-10 h-10 rounded-2xl bg-gradient-to-tr from-pink-500 to-purple-600 text-white flex items-center justify-center mb-3 shadow-md shadow-pink-500/20">
                         <Sparkles className="w-5 h-5" />
                       </div>
-                      <span className="text-[10px] font-bold text-purple-700 dark:text-purple-300 bg-purple-100 dark:bg-purple-950/60 px-2.5 py-0.5 rounded-full">AI Roadmap 2026</span>
-                      <h3 className="text-base font-bold text-slate-900 dark:text-slate-100 mt-2">Vahiz AI Copilot & Code Assistant</h3>
-                      <p className="text-xs text-slate-600 dark:text-slate-400 mt-2 mb-4 leading-relaxed">Tự động hóa tác vụ phân việc VihoTask, tóm tắt bài giảng CourseDemy và gợi ý kiến trúc phần mềm.</p>
+                      <span className="text-[10px] font-bold text-amber-700 dark:text-amber-300 bg-amber-50 dark:bg-amber-950/60 border border-amber-200/80 px-2.5 py-0.5 rounded-full">Sắp ra mắt</span>
+                      <h3 className="text-base font-bold text-slate-900 dark:text-slate-100 mt-2">Vahiz AI Copilot & Tutor</h3>
+                      <p className="text-xs text-slate-600 dark:text-slate-400 mt-2 mb-4 leading-relaxed">Trợ lý AI hỏi đáp bài giảng 24/7, sinh đề kiểm tra tự động và gợi ý phân rã công việc trong VihoTask.</p>
                       <button
                         onClick={() => setSelectedAppDetail(APPS_DATA.find((a) => a.id === 'vahiz_ai') || null)}
                         className="px-4 py-2 rounded-full bg-purple-600 hover:bg-purple-700 text-xs font-bold text-white transition shadow-sm shadow-purple-500/20 active:scale-95"
@@ -421,33 +457,33 @@ export const App: React.FC = () => {
                       </button>
                     </div>
 
-                    <div className="p-6 rounded-3xl bg-gradient-to-br from-blue-50 via-white to-blue-50/40 dark:from-blue-950/20 dark:via-[#121723] dark:to-[#121723] border border-blue-200 dark:border-blue-800/40 shadow-sm hover:shadow-md transition">
-                      <div className="w-10 h-10 rounded-2xl bg-blue-600 text-white flex items-center justify-center mb-3 shadow-md shadow-blue-500/20">
-                        <Layers className="w-5 h-5" />
+                    <div className="p-6 rounded-3xl bg-gradient-to-br from-sky-50 via-white to-blue-50/40 dark:from-blue-950/20 dark:via-[#121723] dark:to-[#121723] border border-sky-200 dark:border-blue-800/40 shadow-sm hover:shadow-md transition">
+                      <div className="w-10 h-10 rounded-2xl bg-gradient-to-tr from-sky-500 to-blue-600 text-white flex items-center justify-center mb-3 shadow-md shadow-blue-500/20">
+                        <HardDrive className="w-5 h-5" />
                       </div>
-                      <span className="text-[10px] font-bold text-blue-700 dark:text-blue-300 bg-blue-100 dark:bg-blue-950/60 px-2.5 py-0.5 rounded-full">Sáng tạo tức thì</span>
-                      <h3 className="text-base font-bold text-slate-900 dark:text-slate-100 mt-2">Mẫu Thiết Kế & Xuất Bản Nhanh</h3>
-                      <p className="text-xs text-slate-600 dark:text-slate-400 mt-2 mb-4 leading-relaxed">Tạo thumbnail video bài giảng, banner quảng bá sự kiện và giao diện tương tác chuyên nghiệp.</p>
+                      <span className="text-[10px] font-bold text-amber-700 dark:text-amber-300 bg-amber-50 dark:bg-amber-950/60 border border-amber-200/80 px-2.5 py-0.5 rounded-full">Sắp ra mắt</span>
+                      <h3 className="text-base font-bold text-slate-900 dark:text-slate-100 mt-2">Vahiz Cloud Drive & Storage</h3>
+                      <p className="text-xs text-slate-600 dark:text-slate-400 mt-2 mb-4 leading-relaxed">Không gian lưu trữ video bài giảng 4K, tệp đính kèm dự án mã hóa đám mây chuẩn S3/MinIO.</p>
                       <button
-                        onClick={() => setSelectedAppDetail(APPS_DATA.find((a) => a.id === 'adobe_express') || null)}
+                        onClick={() => setSelectedAppDetail(APPS_DATA.find((a) => a.id === 'vahiz_cloud') || null)}
                         className="px-4 py-2 rounded-full bg-blue-600 hover:bg-blue-700 text-xs font-bold text-white transition shadow-sm shadow-blue-500/20 active:scale-95"
                       >
-                        Mở Adobe Express
+                        Xem lộ trình Cloud
                       </button>
                     </div>
 
-                    <div className="p-6 rounded-3xl bg-gradient-to-br from-teal-50 via-white to-teal-50/40 dark:from-teal-950/20 dark:via-[#121723] dark:to-[#121723] border border-teal-200 dark:border-teal-800/40 shadow-sm hover:shadow-md transition">
-                      <div className="w-10 h-10 rounded-2xl bg-teal-600 text-white flex items-center justify-center mb-3 shadow-md shadow-teal-500/20">
+                    <div className="p-6 rounded-3xl bg-gradient-to-br from-violet-50 via-white to-indigo-50/40 dark:from-violet-950/20 dark:via-[#121723] dark:to-[#121723] border border-violet-200 dark:border-violet-800/40 shadow-sm hover:shadow-md transition">
+                      <div className="w-10 h-10 rounded-2xl bg-gradient-to-tr from-violet-500 to-indigo-600 text-white flex items-center justify-center mb-3 shadow-md shadow-indigo-500/20">
                         <Rocket className="w-5 h-5" />
                       </div>
-                      <span className="text-[10px] font-bold text-teal-700 dark:text-teal-300 bg-teal-100 dark:bg-teal-950/60 px-2.5 py-0.5 rounded-full">Text-to-Image AI</span>
-                      <h3 className="text-base font-bold text-slate-900 dark:text-slate-100 mt-2">Adobe Firefly AI Studio</h3>
-                      <p className="text-xs text-slate-600 dark:text-slate-400 mt-2 mb-4 leading-relaxed">Biến ý tưởng văn bản thành hình ảnh chân thực chuẩn thương mại với Adobe Firefly v3.</p>
+                      <span className="text-[10px] font-bold text-amber-700 dark:text-amber-300 bg-amber-50 dark:bg-amber-950/60 border border-amber-200/80 px-2.5 py-0.5 rounded-full">Sắp ra mắt</span>
+                      <h3 className="text-base font-bold text-slate-900 dark:text-slate-100 mt-2">Vahiz Live Classroom & Meet</h3>
+                      <p className="text-xs text-slate-600 dark:text-slate-400 mt-2 mb-4 leading-relaxed">Phòng học ảo trực tuyến WebRTC độ trễ siêu thấp, bảng trắng kỹ thuật số và điểm danh tự động.</p>
                       <button
-                        onClick={() => setSelectedAppDetail(APPS_DATA.find((a) => a.id === 'firefly') || null)}
-                        className="px-4 py-2 rounded-full bg-teal-600 hover:bg-teal-700 text-xs font-bold text-white transition shadow-sm shadow-teal-500/20 active:scale-95"
+                        onClick={() => setSelectedAppDetail(APPS_DATA.find((a) => a.id === 'vahiz_meet') || null)}
+                        className="px-4 py-2 rounded-full bg-indigo-600 hover:bg-indigo-700 text-xs font-bold text-white transition shadow-sm shadow-indigo-500/20 active:scale-95"
                       >
-                        Mở Firefly Studio
+                        Khám phá Live Classroom
                       </button>
                     </div>
                   </div>
@@ -466,17 +502,20 @@ export const App: React.FC = () => {
                         <GraduationCap className="w-5 h-5" />
                       </div>
                       <span className="text-[10px] font-bold text-emerald-700 dark:text-emerald-300 bg-emerald-50 dark:bg-emerald-950/60 border border-emerald-200 dark:border-emerald-800 px-2.5 py-0.5 rounded-full">Đang chạy (Live)</span>
-                      <h3 className="text-base font-bold text-slate-900 dark:text-slate-100 mt-2">CourseDemy SaaS E-Learning</h3>
+                      <h3 className="text-base font-bold text-slate-900 dark:text-slate-100 mt-2">VCourseDemy SaaS E-Learning</h3>
                       <p className="text-xs text-slate-600 dark:text-slate-400 mt-2 mb-4 leading-relaxed">Nền tảng học trực tuyến SaaS đa tổ chức, cấp phép token JWT tập trung.</p>
-                      <a
-                        href="http://localhost:3001"
-                        target="_blank"
-                        rel="noreferrer"
-                        className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full bg-indigo-600 hover:bg-indigo-700 text-xs font-bold text-white transition shadow-sm shadow-indigo-500/20"
+                      <button
+                        onClick={() => handleLaunchApp({
+                          id: 'coursedemy',
+                          name: 'VCourseDemy SaaS E-Learning',
+                          targetUrl: 'http://localhost:3001',
+                          licenseKey: 'coursedemy',
+                        })}
+                        className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full bg-indigo-600 hover:bg-indigo-700 text-xs font-bold text-white transition shadow-sm shadow-indigo-500/20 active:scale-95"
                       >
-                        <span>Mở CourseDemy</span>
+                        <span>Mở VCourseDemy</span>
                         <ArrowUpRight className="w-3.5 h-3.5" />
-                      </a>
+                      </button>
                     </div>
 
                     <div className="p-6 rounded-3xl bg-white dark:bg-[#121723] border border-teal-200 dark:border-teal-900/60 shadow-sm hover:shadow-md transition">
@@ -486,15 +525,18 @@ export const App: React.FC = () => {
                       <span className="text-[10px] font-bold text-emerald-700 dark:text-emerald-300 bg-emerald-50 dark:bg-emerald-950/60 border border-emerald-200 dark:border-emerald-800 px-2.5 py-0.5 rounded-full">Đang chạy (Live)</span>
                       <h3 className="text-base font-bold text-slate-900 dark:text-slate-100 mt-2">VihoTask Management</h3>
                       <p className="text-xs text-slate-600 dark:text-slate-400 mt-2 mb-4 leading-relaxed">Hệ thống quản lý công việc và Sprint Kanban realtime cho đội nhóm phát triển.</p>
-                      <a
-                        href="http://localhost:3002"
-                        target="_blank"
-                        rel="noreferrer"
-                        className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full bg-teal-600 hover:bg-teal-700 text-xs font-bold text-white transition shadow-sm shadow-teal-500/20"
+                      <button
+                        onClick={() => handleLaunchApp({
+                          id: 'vihotask',
+                          name: 'VihoTask Management',
+                          targetUrl: 'http://localhost:3002',
+                          licenseKey: 'vihotask',
+                        })}
+                        className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full bg-teal-600 hover:bg-teal-700 text-xs font-bold text-white transition shadow-sm shadow-teal-500/20 active:scale-95"
                       >
                         <span>Mở VihoTask</span>
                         <ArrowUpRight className="w-3.5 h-3.5" />
-                      </a>
+                      </button>
                     </div>
 
                     <div className="p-6 rounded-3xl bg-white dark:bg-[#121723] border border-amber-200 dark:border-amber-900/60 shadow-sm hover:shadow-md transition">
@@ -504,15 +546,18 @@ export const App: React.FC = () => {
                       <span className="text-[10px] font-bold text-amber-700 dark:text-amber-300 bg-amber-50 dark:bg-amber-950/60 border border-amber-200 dark:border-amber-800 px-2.5 py-0.5 rounded-full">IAM Console</span>
                       <h3 className="text-base font-bold text-slate-900 dark:text-slate-100 mt-2">Keycloak IAM Admin Hub</h3>
                       <p className="text-xs text-slate-600 dark:text-slate-400 mt-2 mb-4 leading-relaxed">Quản lý Users, Roles, Multi-Tenant Orgs & Claims của Realm ecosystem-realm.</p>
-                      <a
-                        href="http://localhost:8080/admin/ecosystem-realm/console/"
-                        target="_blank"
-                        rel="noreferrer"
-                        className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full bg-amber-600 hover:bg-amber-700 text-xs font-bold text-white transition shadow-sm shadow-amber-500/20"
+                      <button
+                        onClick={() => handleLaunchApp({
+                          id: 'keycloak_realm_admin',
+                          name: 'Keycloak IAM Admin Hub',
+                          targetUrl: 'http://localhost:8080/admin/master/console/#/ecosystem-realm',
+                          licenseKey: 'public',
+                        })}
+                        className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full bg-amber-600 hover:bg-amber-700 text-xs font-bold text-white transition shadow-sm shadow-amber-500/20 active:scale-95"
                       >
                         <span>Mở Keycloak Console</span>
                         <ArrowUpRight className="w-3.5 h-3.5" />
-                      </a>
+                      </button>
                     </div>
                   </div>
                 </div>
@@ -545,6 +590,7 @@ export const App: React.FC = () => {
         app={selectedAppDetail}
         onClose={() => setSelectedAppDetail(null)}
         onOpenPlans={() => setIsPlansModalOpen(true)}
+        onLaunchApp={handleLaunchApp}
       />
 
       <PlansModal
@@ -581,6 +627,20 @@ export const App: React.FC = () => {
         onLogin={(u, p) => handleLogin(u, p, true)}
         isLoading={isLoading}
         error={loginError}
+      />
+
+      <RegistrationModal
+        isOpen={isRegisterModalOpen}
+        onClose={() => setIsRegisterModalOpen(false)}
+        onRegisterSuccess={(newUser) => {
+          setCurrentUser(newUser);
+          setIsRegisterModalOpen(false);
+          showToast(`Chào mừng thành viên mới @${newUser.preferred_username}!`, 'success');
+        }}
+        onSwitchToLogin={() => {
+          setIsRegisterModalOpen(false);
+          setIsLoginModalOpen(true);
+        }}
       />
     </div>
   );

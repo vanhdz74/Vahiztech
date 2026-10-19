@@ -1,0 +1,308 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 1080" width="1600" height="1080" style="background:#0f172a; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;">
+  <defs>
+    <!-- Gradients -->
+    <linearGradient id="headerGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#3b82f6" />
+      <stop offset="100%" stop-color="#8b5cf6" />
+    </linearGradient>
+
+    <linearGradient id="layerGradClient" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#1e293b" />
+      <stop offset="100%" stop-color="#334155" />
+    </linearGradient>
+
+    <linearGradient id="cardBlue" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#1e3a8a" />
+      <stop offset="100%" stop-color="#1e40af" />
+    </linearGradient>
+
+    <linearGradient id="cardPurple" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#581c87" />
+      <stop offset="100%" stop-color="#6b21a8" />
+    </linearGradient>
+
+    <linearGradient id="cardGreen" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#064e3b" />
+      <stop offset="100%" stop-color="#065f46" />
+    </linearGradient>
+
+    <linearGradient id="cardAmber" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#78350f" />
+      <stop offset="100%" stop-color="#92400e" />
+    </linearGradient>
+
+    <linearGradient id="cardCyan" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#164e63" />
+      <stop offset="100%" stop-color="#155e75" />
+    </linearGradient>
+
+    <!-- Filters for drop shadows -->
+    <filter id="shadow" x="-5%" y="-5%" width="110%" height="115%" filterUnits="userSpaceOnUse">
+      <feDropShadow dx="0" dy="8" stdDeviation="12" flood-color="#000000" flood-opacity="0.45" />
+    </filter>
+
+    <filter id="glow" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="6" result="blur" />
+      <feComposite in="SourceGraphic" in2="blur" operator="over" />
+    </filter>
+
+    <!-- Marker Arrow -->
+    <marker id="arrow" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M 0 1 L 10 5 L 0 9 z" fill="#94a3b8" />
+    </marker>
+    <marker id="arrowCyan" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M 0 1 L 10 5 L 0 9 z" fill="#38bdf8" />
+    </marker>
+    <marker id="arrowAmber" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M 0 1 L 10 5 L 0 9 z" fill="#fbbf24" />
+    </marker>
+  </defs>
+
+  <!-- Title Banner -->
+  <g transform="translate(60, 40)">
+    <rect width="1480" height="70" rx="14" fill="#1e293b" stroke="#334155" stroke-width="1.5" filter="url(#shadow)" />
+    <text x="30" y="42" font-size="24" font-weight="800" fill="url(#headerGrad)" letter-spacing="1">VAHIZTECH ECOSYSTEM</text>
+    <text x="340" y="42" font-size="16" font-weight="500" fill="#94a3b8">|  High-Scalability Multi-Tenant SaaS Architecture (Hub &amp; Spoke)</text>
+    <rect x="1310" y="20" width="140" height="30" rx="8" fill="#3b82f6" fill-opacity="0.2" stroke="#3b82f6" stroke-width="1" />
+    <text x="1380" y="40" font-size="12" font-weight="700" fill="#60a5fa" text-anchor="middle">v2.5 Enterprise</text>
+  </g>
+
+  <!-- ================= 1. CLIENT ACCESS LAYER ================= -->
+  <g transform="translate(60, 135)">
+    <rect width="1480" height="100" rx="14" fill="#1e293b" fill-opacity="0.8" stroke="#334155" stroke-width="1" filter="url(#shadow)" />
+    <text x="25" y="30" font-size="14" font-weight="700" fill="#94a3b8" letter-spacing="1">1. CLIENT ACCESS &amp; SUBDOMAIN ROUTING LAYER</text>
+
+    <!-- Client Card 1 -->
+    <g transform="translate(30, 42)">
+      <rect width="440" height="46" rx="8" fill="#0f172a" stroke="#475569" stroke-width="1" />
+      <circle cx="25" cy="23" r="10" fill="#3b82f6" />
+      <text x="45" y="28" font-size="13" font-weight="600" fill="#f8fafc">B2B Tenant Admin &amp; Members</text>
+      <text x="250" y="28" font-size="11" fill="#94a3b8">alpha.vahiztech.com (Custom Subdomain)</text>
+    </g>
+
+    <!-- Client Card 2 -->
+    <g transform="translate(520, 42)">
+      <rect width="440" height="46" rx="8" fill="#0f172a" stroke="#475569" stroke-width="1" />
+      <circle cx="25" cy="23" r="10" fill="#10b981" />
+      <text x="45" y="28" font-size="13" font-weight="600" fill="#f8fafc">B2C Individual End Users</text>
+      <text x="235" y="28" font-size="11" fill="#94a3b8">app.vahiztech.com / portal</text>
+    </g>
+
+    <!-- Client Card 3 -->
+    <g transform="translate(1010, 42)">
+      <rect width="440" height="46" rx="8" fill="#0f172a" stroke="#475569" stroke-width="1" />
+      <circle cx="25" cy="23" r="10" fill="#8b5cf6" />
+      <text x="45" y="28" font-size="13" font-weight="600" fill="#f8fafc">Ecosystem Super Admins</text>
+      <text x="235" y="28" font-size="11" fill="#94a3b8">admin.vahiztech.com / master</text>
+    </g>
+  </g>
+
+  <!-- ================= 2. GATEWAY & INGRESS ================= -->
+  <g transform="translate(60, 255)">
+    <rect width="1480" height="65" rx="14" fill="#0f172a" stroke="#38bdf8" stroke-width="1.5" stroke-dasharray="4,4" />
+    <text x="740" y="32" font-size="14" font-weight="700" fill="#38bdf8" text-anchor="middle" letter-spacing="1">
+      2. KUBERNETES INGRESS CONTROLLER &amp; REVERSE PROXY (NGINX / SSL TERMINATION)
+    </text>
+    <text x="740" y="52" font-size="12" fill="#94a3b8" text-anchor="middle">
+      Host-based routing: auth.vahiztech.com | coursedemy.vahiztech.com | api.coursedemy.vahiztech.com | api.vihotask.vahiztech.com
+    </text>
+  </g>
+
+  <!-- ================= 3. FRONTEND HUBS & SSO (MIDDLE TIER) ================= -->
+  <!-- Left: Portal Hub -->
+  <g transform="translate(60, 345)">
+    <rect width="460" height="230" rx="14" fill="#1e293b" stroke="#3b82f6" stroke-width="2" filter="url(#shadow)" />
+    <rect x="0" y="0" width="460" height="42" rx="14" fill="#1d4ed8" fill-opacity="0.3" />
+    <text x="20" y="27" font-size="15" font-weight="700" fill="#60a5fa">CENTRAL PORTAL HUB (SPA / NEXT.JS)</text>
+    <text x="20" y="65" font-size="12" font-weight="600" fill="#cbd5e1">Vai trò: Cổng điều hành &amp; Launcher trung tâm</text>
+    
+    <g transform="translate(20, 80)">
+      <rect width="420" height="34" rx="6" fill="#0f172a" stroke="#334155" stroke-width="1" />
+      <text x="15" y="22" font-size="12" fill="#93c5fd">SSO OIDC / PKCE Client Flow (nextjs-portal)</text>
+    </g>
+    <g transform="translate(20, 122)">
+      <rect width="420" height="34" rx="6" fill="#0f172a" stroke="#334155" stroke-width="1" />
+      <text x="15" y="22" font-size="12" fill="#93c5fd">Tenant &amp; User Persona Switcher</text>
+    </g>
+    <g transform="translate(20, 164)">
+      <rect width="420" height="34" rx="6" fill="#0f172a" stroke="#334155" stroke-width="1" />
+      <text x="15" y="22" font-size="12" fill="#93c5fd">App Marketplace &amp; Dynamic License Guard</text>
+    </g>
+    <text x="20" y="218" font-size="11" fill="#64748b">Port: 3000 | Client: Public PKCE S256</text>
+  </g>
+
+  <!-- Center: Keycloak Central IAM -->
+  <g transform="translate(560, 345)">
+    <rect width="480" height="230" rx="14" fill="#1e293b" stroke="#a855f7" stroke-width="2" filter="url(#shadow)" />
+    <rect x="0" y="0" width="480" height="42" rx="14" fill="#7e22ce" fill-opacity="0.3" />
+    <text x="20" y="27" font-size="15" font-weight="700" fill="#c084fc">CENTRAL IAM / SSO (KEYCLOAK 25+)</text>
+    <text x="20" y="65" font-size="12" font-weight="600" fill="#cbd5e1">Realm: ecosystem-realm (--features=organization)</text>
+
+    <g transform="translate(20, 80)">
+      <rect width="440" height="34" rx="6" fill="#0f172a" stroke="#4c1d95" stroke-width="1" />
+      <text x="15" y="22" font-size="12" fill="#d8b4fe">Custom Claim: tenant_id (Định danh tổ chức)</text>
+    </g>
+    <g transform="translate(20, 122)">
+      <rect width="440" height="34" rx="6" fill="#0f172a" stroke="#4c1d95" stroke-width="1" />
+      <text x="15" y="22" font-size="12" fill="#d8b4fe">Custom Claim: licenses ["coursedemy", "vihotask"]</text>
+    </g>
+    <g transform="translate(20, 164)">
+      <rect width="440" height="34" rx="6" fill="#0f172a" stroke="#4c1d95" stroke-width="1" />
+      <text x="15" y="22" font-size="12" fill="#d8b4fe">Realm Roles: org_admin | org_member | individual</text>
+    </g>
+    <text x="20" y="218" font-size="11" fill="#64748b">Port: 8080 | Auth: JWKS certs / OpenID Connect</text>
+  </g>
+
+  <!-- Right: Frontends of Spoke Apps -->
+  <g transform="translate(1080, 345)">
+    <rect width="460" height="230" rx="14" fill="#1e293b" stroke="#10b981" stroke-width="2" filter="url(#shadow)" />
+    <rect x="0" y="0" width="460" height="42" rx="14" fill="#047857" fill-opacity="0.3" />
+    <text x="20" y="27" font-size="15" font-weight="700" fill="#34d399">SPOKE FRONTEND APPS (NEXT.JS 14)</text>
+    <text x="20" y="65" font-size="12" font-weight="600" fill="#cbd5e1">Các ứng dụng nghiệp vụ chuyên biệt:</text>
+
+    <!-- CourseDemy Frontend -->
+    <g transform="translate(20, 80)">
+      <rect width="420" height="55" rx="8" fill="#0f172a" stroke="#334155" stroke-width="1" />
+      <text x="15" y="24" font-size="13" font-weight="700" fill="#6ee7b7">CourseDemy Frontend (Port: 3001)</text>
+      <text x="15" y="44" font-size="11" fill="#94a3b8">Học tập, Video Streaming, Bài giảng, Điểm số</text>
+    </g>
+
+    <!-- VihoTask Frontend -->
+    <g transform="translate(20, 145)">
+      <rect width="420" height="55" rx="8" fill="#0f172a" stroke="#334155" stroke-width="1" />
+      <text x="15" y="24" font-size="13" font-weight="700" fill="#6ee7b7">VihoTask Frontend (Port: 3002)</text>
+      <text x="15" y="44" font-size="11" fill="#94a3b8">Bảng Kanban, Quản lý Sprint, Task, Phân công</text>
+    </g>
+    <text x="20" y="218" font-size="11" fill="#64748b">NextAuth v5 / Bearer-only Token forwarding</text>
+  </g>
+
+  <!-- ================= 4. BACKEND MICROSERVICES TIER ================= -->
+  <g transform="translate(60, 600)">
+    <rect width="1480" height="240" rx="14" fill="#1e293b" stroke="#334155" stroke-width="1.5" filter="url(#shadow)" />
+    <text x="25" y="30" font-size="14" font-weight="700" fill="#94a3b8" letter-spacing="1">4. BACKEND MICROSERVICES &amp; RESOURCE SERVERS</text>
+
+    <!-- Service 1: CourseDemy Backend -->
+    <g transform="translate(30, 48)">
+      <rect width="440" height="170" rx="10" fill="#0f172a" stroke="#3b82f6" stroke-width="1.5" />
+      <rect x="0" y="0" width="440" height="35" rx="10" fill="#1e40af" fill-opacity="0.3" />
+      <text x="15" y="23" font-size="14" font-weight="700" fill="#60a5fa">CourseDemy Service (Spring Boot 3.3)</text>
+      <text x="15" y="58" font-size="11" fill="#cbd5e1">• Java 21 / Spring Security 6 Resource Server</text>
+      <text x="15" y="80" font-size="11" fill="#cbd5e1">• Hibernate Filter: WHERE tenant_id = :tenantId</text>
+      <text x="15" y="102" font-size="11" fill="#cbd5e1">• Courses, Modules, Lessons, Enrollments</text>
+      <text x="15" y="124" font-size="11" fill="#cbd5e1">• Publishes Course Events to Kafka</text>
+      <text x="15" y="152" font-size="11" font-weight="600" fill="#93c5fd">Port: 8080 / 8081 | DB: coursedemy_db</text>
+    </g>
+
+    <!-- Service 2: VihoTask Backend -->
+    <g transform="translate(520, 48)">
+      <rect width="440" height="170" rx="10" fill="#0f172a" stroke="#10b981" stroke-width="1.5" />
+      <rect x="0" y="0" width="440" height="35" rx="10" fill="#065f46" fill-opacity="0.3" />
+      <text x="15" y="23" font-size="14" font-weight="700" fill="#34d399">VihoTask Service (Quarkus 3.14 Reactive)</text>
+      <text x="15" y="58" font-size="11" fill="#cbd5e1">• Java 21 / GraalVM Native Image (<35MB RAM)</text>
+      <text x="15" y="80" font-size="11" fill="#cbd5e1">• SmallRye JWT + Mutiny Reactive Streams</text>
+      <text x="15" y="102" font-size="11" fill="#cbd5e1">• Projects, Kanban Columns, Tasks, Comments</text>
+      <text x="15" y="124" font-size="11" fill="#cbd5e1">• Publishes Task Assigned Events to Kafka</text>
+      <text x="15" y="152" font-size="11" font-weight="600" fill="#6ee7b7">Port: 8080 / 8083 | DB: vihotask_db</text>
+    </g>
+
+    <!-- Service 3: BFF & Event Gateway -->
+    <g transform="translate(1010, 48)">
+      <rect width="440" height="170" rx="10" fill="#0f172a" stroke="#f59e0b" stroke-width="1.5" />
+      <rect x="0" y="0" width="440" height="35" rx="10" fill="#78350f" fill-opacity="0.3" />
+      <text x="15" y="23" font-size="14" font-weight="700" fill="#fbbf24">BFF &amp; Real-time Gateway (Quarkus)</text>
+      <text x="15" y="58" font-size="11" fill="#cbd5e1">• Data Aggregation cho Central Portal Hub</text>
+      <text x="15" y="80" font-size="11" fill="#cbd5e1">• Server-Sent Events (SSE) Stream Notifications</text>
+      <text x="15" y="102" font-size="11" fill="#cbd5e1">• Kafka Event Consumer: ecosystem.*.events</text>
+      <text x="15" y="124" font-size="11" fill="#cbd5e1">• Tenant Lifecycle Provisioning Orchestrator</text>
+      <text x="15" y="152" font-size="11" font-weight="600" fill="#fde68a">Port: 8082 | Event Streaming &amp; Push Hub</text>
+    </g>
+  </g>
+
+  <!-- ================= 5. EVENT STREAMING & DATA TIER ================= -->
+  <!-- Left: Kafka Streaming -->
+  <g transform="translate(60, 865)">
+    <rect width="680" height="160" rx="14" fill="#1e293b" stroke="#f97316" stroke-width="1.5" filter="url(#shadow)" />
+    <rect x="0" y="0" width="680" height="38" rx="14" fill="#c2410c" fill-opacity="0.3" />
+    <text x="20" y="25" font-size="14" font-weight="700" fill="#fb923c">MESSAGE BROKER &amp; EVENT STREAMING (APACHE KAFKA / REDPANDA)</text>
+    
+    <g transform="translate(20, 52)">
+      <rect width="310" height="42" rx="6" fill="#0f172a" stroke="#431407" stroke-width="1" />
+      <text x="12" y="20" font-size="11" font-weight="600" fill="#fdba74">Topic: ecosystem.tenants.events</text>
+      <text x="12" y="34" font-size="10" fill="#94a3b8">TenantCreated, LicenseUpdated</text>
+    </g>
+    <g transform="translate(350, 52)">
+      <rect width="310" height="42" rx="6" fill="#0f172a" stroke="#431407" stroke-width="1" />
+      <text x="12" y="20" font-size="11" font-weight="600" fill="#fdba74">Topic: ecosystem.audit.logs</text>
+      <text x="12" y="34" font-size="10" fill="#94a3b8">Compliance &amp; Actor Activity Trace</text>
+    </g>
+
+    <g transform="translate(20, 102)">
+      <rect width="310" height="42" rx="6" fill="#0f172a" stroke="#431407" stroke-width="1" />
+      <text x="12" y="20" font-size="11" font-weight="600" fill="#fdba74">Topic: ecosystem.coursedemy.events</text>
+      <text x="12" y="34" font-size="10" fill="#94a3b8">CourseCreated, LessonCompleted</text>
+    </g>
+    <g transform="translate(350, 102)">
+      <rect width="310" height="42" rx="6" fill="#0f172a" stroke="#431407" stroke-width="1" />
+      <text x="12" y="20" font-size="11" font-weight="600" fill="#fdba74">Topic: ecosystem.vihotask.events</text>
+      <text x="12" y="34" font-size="10" fill="#94a3b8">TaskAssigned, StatusChanged</text>
+    </g>
+  </g>
+
+  <!-- Right: PostgreSQL Multi-DB Cluster -->
+  <g transform="translate(780, 865)">
+    <rect width="760" height="160" rx="14" fill="#1e293b" stroke="#06b6d4" stroke-width="1.5" filter="url(#shadow)" />
+    <rect x="0" y="0" width="760" height="38" rx="14" fill="#0e7490" fill-opacity="0.3" />
+    <text x="20" y="25" font-size="14" font-weight="700" fill="#22d3ee">PERSISTENCE TIER: POSTGRESQL 16 ALPINE MULTI-DB</text>
+    
+    <!-- DB 1 -->
+    <g transform="translate(20, 52)">
+      <rect width="225" height="92" rx="8" fill="#0f172a" stroke="#164e63" stroke-width="1" />
+      <text x="15" y="25" font-size="13" font-weight="700" fill="#67e8f9">keycloak</text>
+      <text x="15" y="45" font-size="11" fill="#cbd5e1">Identity Schemas</text>
+      <text x="15" y="65" font-size="10" fill="#94a3b8">Users, Realms, Orgs,</text>
+      <text x="15" y="80" font-size="10" fill="#94a3b8">Credentials, Sessions</text>
+    </g>
+
+    <!-- DB 2 -->
+    <g transform="translate(265, 52)">
+      <rect width="225" height="92" rx="8" fill="#0f172a" stroke="#164e63" stroke-width="1" />
+      <text x="15" y="25" font-size="13" font-weight="700" fill="#67e8f9">coursedemy_db</text>
+      <text x="15" y="45" font-size="11" fill="#cbd5e1">E-Learning Domain</text>
+      <text x="15" y="65" font-size="10" fill="#94a3b8">RLS: tenant_id</text>
+      <text x="15" y="80" font-size="10" fill="#94a3b8">Courses, Modules, Videos</text>
+    </g>
+
+    <!-- DB 3 -->
+    <g transform="translate(510, 52)">
+      <rect width="230" height="92" rx="8" fill="#0f172a" stroke="#164e63" stroke-width="1" />
+      <text x="15" y="25" font-size="13" font-weight="700" fill="#67e8f9">vihotask_db</text>
+      <text x="15" y="45" font-size="11" fill="#cbd5e1">Project Task Domain</text>
+      <text x="15" y="65" font-size="10" fill="#94a3b8">RLS: tenant_id</text>
+      <text x="15" y="80" font-size="10" fill="#94a3b8">Kanban, Tasks, Comments</text>
+    </g>
+  </g>
+
+  <!-- Connective Arrows & Data Flows -->
+  <!-- Client to Ingress -->
+  <line x1="800" y1="235" x2="800" y2="255" stroke="#94a3b8" stroke-width="2" marker-end="url(#arrow)" />
+
+  <!-- Ingress to Frontends -->
+  <line x1="290" y1="320" x2="290" y2="345" stroke="#38bdf8" stroke-width="2" marker-end="url(#arrowCyan)" />
+  <line x1="800" y1="320" x2="800" y2="345" stroke="#38bdf8" stroke-width="2" marker-end="url(#arrowCyan)" />
+  <line x1="1310" y1="320" x2="1310" y2="345" stroke="#38bdf8" stroke-width="2" marker-end="url(#arrowCyan)" />
+
+  <!-- Portal <-> Keycloak -->
+  <line x1="520" y1="450" x2="560" y2="450" stroke="#c084fc" stroke-width="2" marker-end="url(#arrow)" stroke-dasharray="3,3" />
+
+  <!-- Frontends to Backends -->
+  <line x1="1180" y1="575" x2="250" y2="648" stroke="#60a5fa" stroke-width="1.5" marker-end="url(#arrow)" stroke-dasharray="4,4" />
+  <line x1="1310" y1="575" x2="740" y2="648" stroke="#34d399" stroke-width="1.5" marker-end="url(#arrow)" stroke-dasharray="4,4" />
+
+  <!-- Backends to Kafka -->
+  <line x1="250" y1="818" x2="250" y2="865" stroke="#fb923c" stroke-width="2" marker-end="url(#arrowAmber)" />
+  <line x1="740" y1="818" x2="550" y2="865" stroke="#fb923c" stroke-width="2" marker-end="url(#arrowAmber)" />
+
+  <!-- Backends to Postgres -->
+  <line x1="400" y1="818" x2="900" y2="865" stroke="#22d3ee" stroke-width="2" marker-end="url(#arrowCyan)" />
+  <line x1="850" y1="818" x2="1150" y2="865" stroke="#22d3ee" stroke-width="2" marker-end="url(#arrowCyan)" />
+</svg>

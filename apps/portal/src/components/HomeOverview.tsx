@@ -1,5 +1,6 @@
 import React from 'react';
 import { KeycloakUser } from '../types/auth';
+import { getAppLaunchUrl } from '../services/keycloak';
 import { 
   ShieldCheck, 
   Sparkles, 
@@ -28,20 +29,25 @@ import {
   VahizCloudIcon,
   VahizMeetIcon 
 } from './AppIcons';
+import vahiztechLogo from '../assets/logos/vahiztech-logo.png';
 import { getKeycloakRealmAdminConsoleUrl } from '../services/keycloak';
 
 interface HomeOverviewProps {
   currentUser: KeycloakUser | null;
+  rawToken?: string | null;
   onNavigateToApps: () => void;
   onOpenSSODrawer: () => void;
   onOpenPlans: () => void;
+  onLaunchApp?: (app: any) => void;
 }
 
 export const HomeOverview: React.FC<HomeOverviewProps> = ({
   currentUser,
+  rawToken,
   onNavigateToApps,
   onOpenSSODrawer,
   onOpenPlans,
+  onLaunchApp,
 }) => {
   const username = currentUser?.preferred_username || 'User';
   const tenantId = currentUser?.tenant_id || 'Global';
@@ -61,15 +67,21 @@ export const HomeOverview: React.FC<HomeOverviewProps> = ({
         <div className="absolute -bottom-12 -left-12 w-48 h-48 bg-sky-400/20 rounded-full blur-xl pointer-events-none" />
 
         <div className="relative z-10 flex flex-col lg:flex-row lg:items-center justify-between gap-6">
-          <div className="space-y-3 max-w-2xl">
-            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/20 backdrop-blur-md text-white text-xs font-bold border border-white/30 shadow-2xs">
-              <Sparkles className="w-3.5 h-3.5 text-amber-300" />
-              <span>Cổng Điều Khiển Hệ Sinh Thái Vahiztech Hub</span>
-            </div>
+          <div className="flex items-start sm:items-center gap-4">
+            <img
+              src={vahiztechLogo}
+              alt="Vahiztech Logo"
+              className="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl object-cover shadow-lg shadow-black/20 border-2 border-white/20 shrink-0 hidden sm:block"
+            />
+            <div className="space-y-3 max-w-2xl">
+              <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/20 backdrop-blur-md text-white text-xs font-bold border border-white/30 shadow-2xs">
+                <Sparkles className="w-3.5 h-3.5 text-amber-300" />
+                <span>Cổng Điều Khiển Hệ Sinh Thái Vahiztech Hub</span>
+              </div>
 
-            <h1 className="text-2xl sm:text-3xl lg:text-4xl font-black tracking-tight leading-tight">
-              Xin chào, {currentUser?.name || username}!
-            </h1>
+              <h1 className="text-2xl sm:text-3xl lg:text-4xl font-black tracking-tight leading-tight">
+                Xin chào, {currentUser?.name || username}!
+              </h1>
 
             <p className="text-xs sm:text-sm text-blue-100 leading-relaxed">
               Bạn đang kết nối với phiên làm việc <strong>Single Sign-On (SSO)</strong> bảo mật. Truy cập nhanh các ứng dụng đã cấp quyền, theo dõi dự án và khám phá các công cụ số hóa.
@@ -88,6 +100,7 @@ export const HomeOverview: React.FC<HomeOverviewProps> = ({
               </span>
             </div>
           </div>
+        </div>
 
           {/* Action Buttons */}
           <div className="flex flex-wrap lg:flex-col gap-3 shrink-0">
@@ -129,7 +142,7 @@ export const HomeOverview: React.FC<HomeOverviewProps> = ({
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 lg:gap-5">
-          {/* 1. CourseDemy */}
+          {/* 1. VCourseDemy */}
           <div className="p-5 rounded-2xl bg-white dark:bg-[#121723] border border-blue-100 dark:border-slate-800 shadow-sm hover:border-blue-300 dark:hover:border-blue-500/40 hover:shadow-md transition flex flex-col justify-between group">
             <div>
               <div className="flex items-center justify-between mb-3">
@@ -143,7 +156,7 @@ export const HomeOverview: React.FC<HomeOverviewProps> = ({
                 </span>
               </div>
               <h3 className="text-sm font-bold text-slate-900 dark:text-slate-100 group-hover:text-blue-600 transition-colors">
-                CourseDemy Platform
+                VCourseDemy Platform
               </h3>
               <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">E-Learning & Video Courses</p>
               <p className="text-xs text-slate-600 dark:text-slate-300 mt-2 line-clamp-2 leading-relaxed">
@@ -153,15 +166,24 @@ export const HomeOverview: React.FC<HomeOverviewProps> = ({
             <div className="pt-4 mt-3 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between">
               <span className="text-[11px] font-mono text-slate-400">Port 3001</span>
               {hasCourseDemy ? (
-                <a
-                  href="http://localhost:3001"
-                  target="_blank"
-                  rel="noreferrer"
+                <button
+                  onClick={() => {
+                    if (onLaunchApp) {
+                      onLaunchApp({
+                        id: 'coursedemy',
+                        name: 'VCourseDemy Platform',
+                        targetUrl: 'http://localhost:3001',
+                        licenseKey: 'coursedemy',
+                      });
+                    } else {
+                      window.open(getAppLaunchUrl('http://localhost:3001', rawToken), '_blank');
+                    }
+                  }}
                   className="h-8 px-4 rounded-full bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold flex items-center gap-1.5 transition shadow-sm active:scale-95"
                 >
-                  <span>Mở CourseDemy</span>
+                  <span>Mở VCourseDemy</span>
                   <ArrowUpRight className="w-3.5 h-3.5" />
-                </a>
+                </button>
               ) : (
                 <button
                   onClick={onOpenPlans}
@@ -197,15 +219,24 @@ export const HomeOverview: React.FC<HomeOverviewProps> = ({
             <div className="pt-4 mt-3 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between">
               <span className="text-[11px] font-mono text-slate-400">Port 3002</span>
               {hasVihoTask ? (
-                <a
-                  href="http://localhost:3002"
-                  target="_blank"
-                  rel="noreferrer"
+                <button
+                  onClick={() => {
+                    if (onLaunchApp) {
+                      onLaunchApp({
+                        id: 'vihotask',
+                        name: 'VihoTask Management',
+                        targetUrl: 'http://localhost:3002',
+                        licenseKey: 'vihotask',
+                      });
+                    } else {
+                      window.open(getAppLaunchUrl('http://localhost:3002', rawToken), '_blank');
+                    }
+                  }}
                   className="h-8 px-4 rounded-full bg-teal-600 hover:bg-teal-700 text-white text-xs font-bold flex items-center gap-1.5 transition shadow-sm active:scale-95"
                 >
                   <span>Mở VihoTask</span>
                   <ArrowUpRight className="w-3.5 h-3.5" />
-                </a>
+                </button>
               ) : (
                 <button
                   onClick={onOpenPlans}
@@ -253,9 +284,11 @@ export const HomeOverview: React.FC<HomeOverviewProps> = ({
       {/* 3. Đoạn Giới Thiệu Hệ Sinh Thái & Kiến Trúc (Ecosystem Overview & Key Highlights) */}
       <div className="p-6 sm:p-8 rounded-3xl bg-white dark:bg-[#121723] border border-blue-100 dark:border-slate-800 shadow-sm space-y-6">
         <div className="flex items-center gap-3 pb-4 border-b border-slate-100 dark:border-slate-800">
-          <div className="p-2 rounded-xl bg-blue-50 dark:bg-blue-950/60 text-blue-600 dark:text-blue-400 border border-blue-100 dark:border-blue-900">
-            <Layers className="w-5 h-5" />
-          </div>
+          <img
+            src={vahiztechLogo}
+            alt="Vahiztech Logo"
+            className="w-10 h-10 rounded-xl object-cover shadow-sm border border-blue-200/50 dark:border-slate-700 shrink-0"
+          />
           <div>
             <h2 className="text-base sm:text-lg font-black text-slate-900 dark:text-slate-100">
               Giới thiệu Tổng quan Kiến trúc Vahiztech

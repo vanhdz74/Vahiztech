@@ -38,7 +38,7 @@ Dự án thiết lập toàn bộ hạ tầng Identity and Access Management (IA
 | Client ID | Loại Client | Cơ chế Xác thực (Auth Flow) | Quyền hạn / Mục đích |
 | :--- | :--- | :--- | :--- |
 | `nextjs-portal` | **Public** | Authorization Code Flow + **PKCE (S256)** | Frontend SPA Portal cho người dùng đăng nhập SSO. Redirect: `http://localhost:3000/*`. |
-| `coursedemy-client` | **Bearer-only** | JWT Validation (Resource Server) | Backend API bảo vệ tài nguyên học tập của sản phẩm Coursedemy. |
+| `coursedemy-client` | **Bearer-only** | JWT Validation (Resource Server) | Backend API bảo vệ tài nguyên học tập của sản phẩm VCourseDemy. |
 | `vihotask-client` | **Bearer-only** | JWT Validation (Resource Server) | Backend API bảo vệ tài nguyên quản lý công việc của sản phẩm VihoTask. |
 | `backend-admin-client` | **Confidential** | Client Credentials (Service Account) | Backend Core Microservice có quyền `manage-users`, `view-users` để quản trị người dùng. |
 
@@ -128,6 +128,9 @@ Access Token được cấu hình tự động nhúng các Claims phục vụ Mu
 
 ## 4. Hướng dẫn Khởi chạy & Kiểm thử Nhanh (Quickstart)
 
+> [!TIP]
+> 📖 **Xem cẩm nang hướng dẫn đầy đủ từ A - Z (Setup, 5 kịch bản chạy, tài khoản test, troubleshooting)**: [docs/HUONG_DAN_CHAY_DU_AN.md](docs/HUONG_DAN_CHAY_DU_AN.md)
+
 ### Khởi chạy 1-Click (All-in-One Local Starter):
 ```bash
 ./scripts/start-local.sh
@@ -165,8 +168,8 @@ Hệ thống mô phỏng mô hình **Google Workspace Hub (Cha) -> Google Apps (
 | :--- | :--- | :--- | :--- | :--- | :--- |
 | `vahiztech_super_admin` | `SuperAdmin@123456` | `ecosystem_super_admin` | `vahiztech-hq` | `["vahiztech_hub", "coursedemy", "vihotask"]` | Super Admin hệ thống Vahiztech Hub |
 | `alpha_corp_admin` | `Admin@123456` | `org_admin` | `alpha-corp` | `["coursedemy", "vihotask"]` | Admin Doanh nghiệp Alpha (Mua Full cả 2 Apps) |
-| `alpha_employee_tasks` | `Staff@123456` | `org_member` | `alpha-corp` | `["vihotask"]` | Nhân viên Alpha (Chỉ dùng VihoTask, chặn CourseDemy) |
-| `beta_school_student` | `Student@123456` | `org_member` | `beta-school` | `["coursedemy"]` | Học viên trường Beta (Chỉ học CourseDemy, chặn VihoTask) |
+| `alpha_employee_tasks` | `Staff@123456` | `org_member` | `alpha-corp` | `["vihotask"]` | Nhân viên Alpha (Chỉ dùng VihoTask, chặn VCourseDemy) |
+| `beta_school_student` | `Student@123456` | `org_member` | `beta-school` | `["coursedemy"]` | Học viên trường Beta (Chỉ học VCourseDemy, chặn VihoTask) |
 | `free_tier_user` | `Free@123456` | `individual_user` | `free-tier` | `[]` | Người dùng miễn phí (Chưa mua license -> Chặn vào Apps) |
 
 

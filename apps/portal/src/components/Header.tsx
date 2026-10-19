@@ -18,8 +18,12 @@ export const Header: React.FC<HeaderProps> = ({ user, onLogout, onOpenLogin }) =
       <div className="max-w-7xl mx-auto flex items-center justify-between">
         {/* Brand Logo & Title */}
         <div className="flex items-center gap-3.5">
-          <div className="relative flex items-center justify-center w-10 h-10 rounded-xl bg-gradient-to-tr from-blue-600 to-indigo-600 shadow-md shadow-blue-500/20 text-white">
-            <ShieldCheck className="w-5 h-5" />
+          <div className="relative">
+            <img 
+              src="/logos/vahiztech-logo.png" 
+              alt="Vahiztech Logo" 
+              className="w-10 h-10 rounded-xl object-cover shadow-md shadow-blue-500/25 border border-blue-200/50"
+            />
             <span className="absolute -top-1 -right-1 flex h-3 w-3">
               <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-75"></span>
               <span className="relative inline-flex rounded-full h-3 w-3 bg-blue-500"></span>

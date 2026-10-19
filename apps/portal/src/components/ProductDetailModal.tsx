@@ -1,6 +1,7 @@
 import React from 'react';
-import { X, Sparkles, CheckCircle2, ArrowUpRight, ShieldCheck, Download, ExternalLink, Rocket } from 'lucide-react';
+import { X, Sparkles, CheckCircle2, ArrowUpRight, Clock, ExternalLink } from 'lucide-react';
 import { AppItem } from '../data/appsData';
+import { getAppLaunchUrl } from '../services/keycloak';
 import { 
   CourseDemyIcon, 
   VihoTaskIcon, 
@@ -8,34 +9,24 @@ import {
   VahizAIIcon,
   VahizCloudIcon,
   VahizMeetIcon,
+  VahizBillingIcon,
+  VahizFormsIcon,
   VahizDocsIcon,
-  VahizAnalyticsIcon,
-  VahizDevHubIcon,
-  VahizMailIcon,
-  CreativeCloudLogo,
-  PhotoshopIcon, 
-  IllustratorIcon, 
-  AcrobatIcon, 
-  FireflyIcon, 
-  PremiereIcon, 
-  AdobeExpressIcon, 
-  InDesignIcon, 
-  AfterEffectsIcon, 
-  LightroomIcon, 
-  LightroomClassicIcon, 
-  SubstancePainterIcon
+  VahiztechIcon
 } from './AppIcons';
 
 interface ProductDetailModalProps {
   app: AppItem | null;
   onClose: () => void;
   onOpenPlans: () => void;
+  onLaunchApp?: (app: AppItem) => void;
 }
 
 export const ProductDetailModal: React.FC<ProductDetailModalProps> = ({
   app,
   onClose,
   onOpenPlans,
+  onLaunchApp,
 }) => {
   if (!app) return null;
 
@@ -53,46 +44,20 @@ export const ProductDetailModal: React.FC<ProductDetailModalProps> = ({
         return <VahizCloudIcon className="w-16 h-16" />;
       case 'vahiz_meet':
         return <VahizMeetIcon className="w-16 h-16" />;
+      case 'vahiz_billing':
+        return <VahizBillingIcon className="w-16 h-16" />;
+      case 'vahiz_forms':
+        return <VahizFormsIcon className="w-16 h-16" />;
       case 'vahiz_docs':
         return <VahizDocsIcon className="w-16 h-16" />;
-      case 'vahiz_analytics':
-        return <VahizAnalyticsIcon className="w-16 h-16" />;
-      case 'vahiz_devhub':
-        return <VahizDevHubIcon className="w-16 h-16" />;
-      case 'vahiz_mail':
-        return <VahizMailIcon className="w-16 h-16" />;
-      case 'cc_pro':
-        return <CreativeCloudLogo className="w-16 h-16" />;
-      case 'ps':
-        return <PhotoshopIcon className="w-16 h-16" />;
-      case 'ai':
-        return <IllustratorIcon className="w-16 h-16" />;
-      case 'acrobat':
-        return <AcrobatIcon className="w-16 h-16" />;
-      case 'fi':
-        return <FireflyIcon className="w-16 h-16" />;
-      case 'pr':
-        return <PremiereIcon className="w-16 h-16" />;
-      case 'express':
-        return <AdobeExpressIcon className="w-16 h-16" />;
-      case 'id':
-        return <InDesignIcon className="w-16 h-16" />;
-      case 'ae':
-        return <AfterEffectsIcon className="w-16 h-16" />;
-      case 'lr':
-        return <LightroomIcon className="w-16 h-16" />;
-      case 'lrc':
-        return <LightroomClassicIcon className="w-16 h-16" />;
-      case 'pt':
-        return <SubstancePainterIcon className="w-16 h-16" />;
       default:
-        return <CourseDemyIcon className="w-16 h-16" />;
+        return <VahiztechIcon className="w-16 h-16" />;
     }
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/40 dark:bg-black/70 backdrop-blur-sm p-4 overflow-y-auto select-none animate-in fade-in duration-200">
-      <div className="relative w-full max-w-2xl max-h-[92vh] overflow-y-auto bg-white dark:bg-[#121723] border border-blue-100 dark:border-slate-800 rounded-3xl shadow-2xl p-4 sm:p-8 text-left transition-colors">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 dark:bg-black/75 backdrop-blur-md p-4 overflow-y-auto select-none animate-in fade-in duration-200">
+      <div className="relative w-full max-w-2xl bg-white dark:bg-[#121723] border border-blue-100 dark:border-slate-800 rounded-3xl shadow-2xl p-6 sm:p-8 text-left transition-colors">
         {/* Close Button */}
         <button
           onClick={onClose}
@@ -102,50 +67,45 @@ export const ProductDetailModal: React.FC<ProductDetailModalProps> = ({
         </button>
 
         {/* Modal Header */}
-        <div className="flex items-start gap-4 pb-6 border-b border-slate-100 dark:border-slate-800">
+        <div className="flex items-start gap-4 mb-6">
           <div className="shrink-0">{renderIcon()}</div>
-          <div className="flex-1">
-            <div className="flex items-center gap-2">
-              <h2 className="text-xl font-bold text-slate-900 dark:text-slate-100 tracking-tight">{app.name}</h2>
-              {app.version && (
-                <span className="text-xs font-mono px-2 py-0.5 rounded-md bg-blue-50 dark:bg-blue-950/60 text-blue-700 dark:text-blue-300 font-semibold border border-blue-200 dark:border-blue-800">
-                  {app.version}
+          <div>
+            <div className="flex flex-wrap items-center gap-2 mb-1">
+              <h3 className="text-xl font-black text-slate-900 dark:text-slate-100 tracking-tight">
+                {app.name}
+              </h3>
+              {app.badgeType === 'live' && (
+                <span className="px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800 flex items-center gap-1">
+                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                  Đang hoạt động (Live)
+                </span>
+              )}
+              {app.badgeType === 'coming_soon' && (
+                <span className="px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-amber-50 dark:bg-amber-950/60 text-amber-700 dark:text-amber-300 border border-amber-300/80 dark:border-amber-700/80 flex items-center gap-1">
+                  <Clock className="w-3 h-3 text-amber-500" />
+                  Sắp ra mắt
+                </span>
+              )}
+              {app.badgeType === 'iam' && (
+                <span className="px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-blue-50 dark:bg-blue-950/60 text-blue-700 dark:text-blue-300 border border-blue-200 dark:border-blue-800 flex items-center gap-1">
+                  Quản trị bảo mật IAM
                 </span>
               )}
             </div>
-            <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">{app.description}</p>
+            {app.version && (
+              <span className="text-xs text-slate-500 dark:text-slate-400 font-mono font-medium block">
+                {app.version}
+              </span>
+            )}
           </div>
         </div>
 
         {/* Modal Body */}
-        <div className="py-6 space-y-5 text-xs text-slate-600 dark:text-slate-300">
+        <div className="space-y-4 mb-6 text-xs sm:text-sm text-slate-600 dark:text-slate-300 leading-relaxed max-h-[60vh] overflow-y-auto pr-1">
           <div>
-            <h4 className="text-sm font-bold text-slate-800 dark:text-slate-100 mb-2">Giới thiệu sản phẩm & Giải pháp</h4>
-            <p className="leading-relaxed text-slate-600 dark:text-slate-300">
-              {app.fullDescription || app.description}
-            </p>
+            <h4 className="text-sm font-bold text-slate-800 dark:text-slate-100 mb-1">Mô tả tổng quan</h4>
+            <p>{app.fullDescription || app.description}</p>
           </div>
-
-          {app.price && (
-            <div className="p-4 rounded-2xl bg-blue-50/50 dark:bg-slate-850/70 border border-blue-100 dark:border-slate-750 flex items-center justify-between">
-              <div>
-                <span className="text-slate-500 dark:text-slate-400 text-xs block">Giá đăng ký</span>
-                <span className="text-base font-bold text-slate-900 dark:text-slate-100">{app.price}</span>
-                {app.discountNote && (
-                  <span className="text-[11px] text-emerald-700 dark:text-emerald-400 font-medium block mt-0.5">{app.discountNote}</span>
-                )}
-              </div>
-              <button
-                onClick={() => {
-                  onClose();
-                  onOpenPlans();
-                }}
-                className="px-5 py-2 rounded-full bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold transition shadow-sm shadow-blue-500/20 active:scale-95"
-              >
-                Đăng ký gói
-              </button>
-            </div>
-          )}
 
           {/* Key Features */}
           <div>
@@ -161,11 +121,11 @@ export const ProductDetailModal: React.FC<ProductDetailModalProps> = ({
               </div>
               <div className="p-3 rounded-xl bg-slate-50 dark:bg-slate-850/60 border border-slate-200 dark:border-slate-750 flex items-start gap-2">
                 <CheckCircle2 className="w-4 h-4 text-blue-600 dark:text-blue-400 shrink-0 mt-0.5" />
-                <span className="font-medium">Cập nhật dữ liệu thời gian thực WebSocket</span>
+                <span className="font-medium">Đồng bộ định danh & Phân quyền Roles</span>
               </div>
               <div className="p-3 rounded-xl bg-slate-50 dark:bg-slate-850/60 border border-slate-200 dark:border-slate-750 flex items-start gap-2">
                 <CheckCircle2 className="w-4 h-4 text-blue-600 dark:text-blue-400 shrink-0 mt-0.5" />
-                <span className="font-medium">Tự động đồng bộ quyền hạn qua JWT Bearer</span>
+                <span className="font-medium">Kiến trúc Microservices mở rộng</span>
               </div>
             </div>
           </div>
@@ -174,16 +134,11 @@ export const ProductDetailModal: React.FC<ProductDetailModalProps> = ({
         {/* Modal Footer */}
         <div className="pt-4 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between">
           <div className="flex items-center gap-2">
-            {app.productInfoUrl && (
-              <a
-                href={app.productInfoUrl}
-                target="_blank"
-                rel="noreferrer"
-                className="text-xs text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 font-semibold flex items-center gap-1"
-              >
-                <span>Trang web chính thức</span>
-                <ExternalLink className="w-3 h-3" />
-              </a>
+            {app.badgeType === 'coming_soon' && (
+              <span className="text-xs text-amber-600 dark:text-amber-400 font-semibold flex items-center gap-1.5">
+                <Clock className="w-3.5 h-3.5" />
+                <span>Đang trong giai đoạn nghiên cứu & phát triển</span>
+              </span>
             )}
           </div>
 
@@ -195,15 +150,20 @@ export const ProductDetailModal: React.FC<ProductDetailModalProps> = ({
               Đóng
             </button>
             {app.targetUrl && (
-              <a
-                href={app.targetUrl}
-                target="_blank"
-                rel="noreferrer"
+              <button
+                onClick={() => {
+                  onClose();
+                  if (onLaunchApp) {
+                    onLaunchApp(app);
+                  } else {
+                    window.open(getAppLaunchUrl(app.targetUrl), '_blank');
+                  }
+                }}
                 className="px-5 py-2 rounded-full bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold flex items-center gap-1.5 transition shadow-sm shadow-blue-500/20 active:scale-95"
               >
                 <span>Mở App</span>
                 <ArrowUpRight className="w-3.5 h-3.5" />
-              </a>
+              </button>
             )}
           </div>
         </div>

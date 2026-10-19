@@ -1,0 +1,75 @@
+# ==============================================================================
+# VAHIZTECH SSO & CENTRAL IAM - STANDALONE RUNTIME
+# ==============================================================================
+# File này dùng để chạy ĐỘC LẬP cụm SSO (Keycloak IAM + Portal Hub + PostgreSQL)
+# Người khác tải file này về chỉ cần chạy:
+#   docker compose -f docker-compose.sso.yml up -d
+# ==============================================================================
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: vahiztech-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-keycloak}
+      POSTGRES_USER: ${POSTGRES_USER:-keycloak}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-keycloak_secure_pass_2026}
+      POSTGRES_MULTIPLE_DATABASES: "coursedemy_db,vihotask_db"
+    ports:
+      - "${POSTGRES_PORT:-5433}:5432"
+    volumes:
+      - auth_postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      start_period: 5s
+
+  keycloak:
+    image: vanh74/vahiztech-iam:latest
+    container_name: vahiztech-keycloak
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      KC_DB: postgres
+      KC_DB_URL: jdbc:postgresql://postgres:5432/${POSTGRES_DB:-keycloak}
+      KC_DB_USERNAME: ${POSTGRES_USER:-keycloak}
+      KC_DB_PASSWORD: ${POSTGRES_PASSWORD:-keycloak_secure_pass_2026}
+      KEYCLOAK_ADMIN: ${KEYCLOAK_ADMIN:-admin}
+      KEYCLOAK_ADMIN_PASSWORD: ${KEYCLOAK_ADMIN_PASSWORD:-admin_master_password_2026}
+      KC_HTTP_ENABLED: "true"
+      KC_HOSTNAME_STRICT: "false"
+      KC_HOSTNAME_STRICT_HTTPS: "false"
+      KC_PROXY_HEADERS: "xforwarded"
+      KC_FEATURES: "organization"
+    command:
+      - "start-dev"
+      - "--import-realm"
+      - "--features=organization"
+    ports:
+      - "${KEYCLOAK_PORT:-8080}:8080"
+
+  portal:
+    image: vanh74/vahiztech-portal:latest
+    container_name: vahiztech-portal-hub
+    restart: unless-stopped
+    depends_on:
+      - keycloak
+    ports:
+      - "${PORTAL_PORT:-3000}:3000"
+    environment:
+      VITE_KEYCLOAK_URL: ${KEYCLOAK_URL:-http://localhost:8080}
+      VITE_KEYCLOAK_REALM: ${KEYCLOAK_REALM:-ecosystem-realm}
+      VITE_KEYCLOAK_CLIENT_ID: ${NEXT_PUBLIC_KEYCLOAK_CLIENT_ID:-vahiztech-hub}
+
+networks:
+  default:
+    name: vahiztech_net
+
+volumes:
+  auth_postgres_data:
+    name: auth_postgres_data

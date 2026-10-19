@@ -17,6 +17,7 @@ import {
   X
 } from 'lucide-react';
 import { KeycloakUser } from '../types/auth';
+import vahiztechLogo from '../assets/logos/vahiztech-logo.png';
 
 interface TopNavbarProps {
   searchQuery: string;
@@ -97,10 +98,12 @@ export const TopNavbar: React.FC<TopNavbarProps> = ({
       ) : (
         <>
           {/* Brand Logo */}
-          <div className="flex items-center gap-2 shrink-0">
-            <div className="w-8 h-8 rounded-xl bg-gradient-to-tr from-blue-600 via-indigo-600 to-purple-600 flex items-center justify-center text-white shadow-md shadow-blue-500/20">
-              <Layers className="w-4 h-4" />
-            </div>
+          <div className="flex items-center gap-2.5 shrink-0">
+            <img 
+              src={vahiztechLogo} 
+              alt="Vahiztech Logo" 
+              className="w-8 h-8 rounded-xl object-cover shadow-md shadow-blue-500/25 border border-blue-200/50 dark:border-slate-700 shrink-0" 
+            />
             <div>
               <span className="font-black text-sm sm:text-base tracking-tight bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 bg-clip-text text-transparent">
                 Vahiztech
@@ -119,7 +122,7 @@ export const TopNavbar: React.FC<TopNavbarProps> = ({
                 type="text"
                 value={searchQuery}
                 onChange={(e) => onSearchChange(e.target.value)}
-                placeholder="Tìm ứng dụng (CourseDemy, VihoTask, AI...)"
+                placeholder="Tìm ứng dụng (VCourseDemy, VihoTask, AI...)"
                 className="w-full h-9 pl-9 pr-8 bg-blue-50/50 dark:bg-slate-900 hover:bg-blue-50/80 dark:hover:bg-slate-850 focus:bg-white dark:focus:bg-slate-900 text-xs sm:text-sm text-slate-800 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-500 rounded-full border border-blue-200/80 dark:border-slate-700 focus:border-blue-500 dark:focus:border-blue-500 focus:ring-2 focus:ring-blue-100 dark:focus:ring-blue-950 focus:outline-none transition font-normal shadow-inner"
               />
               {searchQuery && (
@@ -197,7 +200,7 @@ export const TopNavbar: React.FC<TopNavbarProps> = ({
                     <div className="p-2.5 rounded-xl bg-blue-50/60 dark:bg-slate-800/60 border border-blue-100 dark:border-slate-700">
                       <div className="text-slate-800 dark:text-slate-200 font-semibold flex items-center gap-1.5">
                         <span className="w-2 h-2 rounded-full bg-emerald-500" />
-                        CourseDemy v2.1 Live
+                        VCourseDemy v2.1 Live
                       </div>
                       <div className="text-slate-500 dark:text-slate-400 text-[11px] mt-0.5">Hệ thống bài giảng E-Learning đã tích hợp xác thực OIDC PKCE.</div>
                     </div>

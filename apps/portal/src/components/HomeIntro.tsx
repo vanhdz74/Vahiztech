@@ -1,4 +1,5 @@
 import React from 'react';
+import { getAppLaunchUrl } from '../services/keycloak';
 import { 
   Sparkles, 
   ArrowRight, 
@@ -22,6 +23,7 @@ import {
   Workflow
 } from 'lucide-react';
 import { KeycloakUser } from '../types/auth';
+import { CourseDemyIcon, VihoTaskIcon } from './AppIcons';
 
 interface HomeIntroProps {
   onExploreApps: () => void;
@@ -66,7 +68,7 @@ export const HomeIntro: React.FC<HomeIntroProps> = ({
 
           {/* Subtitle / Value Proposition */}
           <p className="text-sm sm:text-base lg:text-lg text-slate-600 dark:text-slate-300 leading-relaxed max-w-3xl">
-            Vahiztech là nền tảng quản trị định danh tập trung (SSO/IAM) và hệ sinh thái ứng dụng đám mây (SaaS Multi-tenant). Chúng tôi cung cấp giải pháp toàn diện từ đào tạo trực tuyến <strong>CourseDemy</strong>, quản trị dự án <strong>VihoTask</strong> đến <strong>AI Generative Studio</strong> cho doanh nghiệp hiện đại.
+            Vahiztech là nền tảng quản trị định danh tập trung (SSO/IAM) và hệ sinh thái ứng dụng đám mây (SaaS Multi-tenant). Chúng tôi cung cấp giải pháp toàn diện từ đào tạo trực tuyến <strong>VCourseDemy</strong>, quản trị dự án <strong>VihoTask</strong> đến <strong>AI Generative Studio</strong> cho doanh nghiệp hiện đại.
           </p>
 
           {/* Primary Action Buttons */}
@@ -147,12 +149,10 @@ export const HomeIntro: React.FC<HomeIntroProps> = ({
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
-          {/* Card 1: CourseDemy */}
+          {/* Card 1: VCourseDemy */}
           <div className="p-6 rounded-3xl bg-white dark:bg-[#121723] border border-indigo-100 dark:border-slate-800 shadow-sm hover:shadow-xl hover:border-indigo-300 dark:hover:border-indigo-600/50 transition-all duration-300 group flex flex-col justify-between">
             <div className="space-y-4">
-              <div className="w-12 h-12 rounded-2xl bg-indigo-600 text-white flex items-center justify-center shadow-lg shadow-indigo-500/20 group-hover:scale-105 transition">
-                <GraduationCap className="w-6 h-6" />
-              </div>
+              <CourseDemyIcon className="w-12 h-12" />
 
               <div>
                 <div className="flex items-center gap-2">
@@ -162,7 +162,7 @@ export const HomeIntro: React.FC<HomeIntroProps> = ({
                   <span className="text-[10px] font-mono text-slate-400">Port: 3001</span>
                 </div>
                 <h3 className="text-lg font-bold text-slate-900 dark:text-slate-100 mt-1.5">
-                  CourseDemy E-Learning
+                  VCourseDemy E-Learning
                 </h3>
                 <p className="text-xs text-slate-600 dark:text-slate-400 mt-2 leading-relaxed">
                   Hệ thống quản lý đào tạo trực tuyến (LMS) thế hệ mới. Hỗ trợ đa tổ chức, cấp chứng chỉ tự động, lộ trình video bài giảng React, DevOps và AI.
@@ -188,7 +188,7 @@ export const HomeIntro: React.FC<HomeIntroProps> = ({
             <div className="pt-5 mt-4 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between">
               <span className="text-[11px] font-mono text-indigo-600 dark:text-indigo-400 font-bold">license: "coursedemy"</span>
               <a
-                href="http://localhost:3001"
+                href={getAppLaunchUrl('http://localhost:3001')}
                 target="_blank"
                 rel="noreferrer"
                 className="px-3.5 py-1.5 rounded-xl bg-indigo-50 dark:bg-indigo-950/60 text-indigo-700 dark:text-indigo-300 font-bold text-xs flex items-center gap-1 hover:bg-indigo-600 hover:text-white transition"
@@ -202,9 +202,7 @@ export const HomeIntro: React.FC<HomeIntroProps> = ({
           {/* Card 2: VihoTask */}
           <div className="p-6 rounded-3xl bg-white dark:bg-[#121723] border border-teal-100 dark:border-slate-800 shadow-sm hover:shadow-xl hover:border-teal-300 dark:hover:border-teal-600/50 transition-all duration-300 group flex flex-col justify-between">
             <div className="space-y-4">
-              <div className="w-12 h-12 rounded-2xl bg-teal-600 text-white flex items-center justify-center shadow-lg shadow-teal-500/20 group-hover:scale-105 transition">
-                <Kanban className="w-6 h-6" />
-              </div>
+              <VihoTaskIcon className="w-12 h-12" />
 
               <div>
                 <div className="flex items-center gap-2">
@@ -240,7 +238,7 @@ export const HomeIntro: React.FC<HomeIntroProps> = ({
             <div className="pt-5 mt-4 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between">
               <span className="text-[11px] font-mono text-teal-600 dark:text-teal-400 font-bold">license: "vihotask"</span>
               <a
-                href="http://localhost:3002"
+                href={getAppLaunchUrl('http://localhost:3002')}
                 target="_blank"
                 rel="noreferrer"
                 className="px-3.5 py-1.5 rounded-xl bg-teal-50 dark:bg-teal-950/60 text-teal-700 dark:text-teal-300 font-bold text-xs flex items-center gap-1 hover:bg-teal-600 hover:text-white transition"
@@ -346,7 +344,7 @@ export const HomeIntro: React.FC<HomeIntroProps> = ({
               <span>2. Bearer Token Verification</span>
             </div>
             <p className="text-[11px] text-slate-600 dark:text-slate-400 leading-relaxed">
-              Các Microservices (CourseDemy, VihoTask) chỉ cần giải mã chữ ký công khai JWKS từ Keycloak để xác thực mà không cần query lại DB.
+              Các Microservices (VCourseDemy, VihoTask) chỉ cần giải mã chữ ký công khai JWKS từ Keycloak để xác thực mà không cần query lại DB.
             </p>
           </div>
 

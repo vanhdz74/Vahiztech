@@ -5,7 +5,7 @@
 #   - docker-compose.infra.yml  : Hạ tầng dùng chung (PostgreSQL 16, Keycloak 25+, Kafka)
 #   - docker-compose.portal.yml : Cổng điều hành trung tâm (Central SSO & App Hub Portal)
 #   - docker-compose.apps.yml   : Microservices (CourseDemy Backend & Frontend, VihoTask)
-#
+
 # Cách sử dụng:
 #   - Khởi chạy toàn bộ hệ sinh thái:  docker compose up -d
 #   - Chỉ chạy hạ tầng (Infra only):   docker compose -f docker-compose.infra.yml up -d
@@ -16,7 +16,7 @@
 include:
   - path: ./docker-compose.infra.yml
   - path: ./docker-compose.portal.yml
-  - path: ./docker-compose.apps.yml
+  # - path: ./docker-compose.apps.yml
 
 networks:
   default:

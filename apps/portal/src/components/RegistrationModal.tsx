@@ -26,6 +26,8 @@ import {
   Ticket
 } from 'lucide-react';
 import { KeycloakUser } from '../types/auth';
+import { CourseDemyIcon, VihoTaskIcon } from './AppIcons';
+import vahiztechLogo from '../assets/logos/vahiztech-logo.png';
 
 interface RegistrationModalProps {
   isOpen: boolean;
@@ -294,9 +296,11 @@ export const RegistrationModal: React.FC<RegistrationModalProps> = ({
         {/* Header */}
         <div className="p-5 sm:p-6 pb-4 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="p-2.5 rounded-2xl bg-gradient-to-tr from-blue-600 to-indigo-600 text-white shadow-md shadow-blue-500/20">
-              <Layers className="w-5 h-5" />
-            </div>
+            <img
+              src={vahiztechLogo}
+              alt="Vahiztech Logo"
+              className="w-11 h-11 rounded-2xl object-cover shadow-md shadow-blue-500/20 border border-blue-200/50 dark:border-slate-700 shrink-0"
+            />
             <div>
               <h3 className="text-base sm:text-lg font-black text-slate-900 dark:text-slate-100 tracking-tight">
                 Đăng Ký Tài Khoản & Khởi Tạo Workspace
@@ -799,7 +803,7 @@ export const RegistrationModal: React.FC<RegistrationModalProps> = ({
                               Phổ biến
                             </span>
                             <h5 className="font-bold text-xs text-slate-900 dark:text-slate-100">14 Ngày Dùng Thử Pro</h5>
-                            <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-1">Full tính năng CourseDemy + VihoTask, không cần thẻ tín dụng.</p>
+                            <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-1">Full tính năng VCourseDemy + VihoTask, không cần thẻ tín dụng.</p>
                             <div className="mt-2 text-xs font-black text-blue-600 dark:text-blue-400">0 VNĐ (Trial)</div>
                           </div>
 
@@ -837,7 +841,7 @@ export const RegistrationModal: React.FC<RegistrationModalProps> = ({
                           Các ứng dụng được cấp phép tự động trong Token Claims:
                         </span>
                         <div className="grid grid-cols-2 gap-2 text-xs">
-                          <label className="flex items-center gap-2 p-2 rounded-xl bg-white dark:bg-[#121723] border border-blue-100 dark:border-slate-800 cursor-pointer">
+                          <label className="flex items-center gap-2 p-2 rounded-xl bg-white dark:bg-[#121723] border border-blue-100 dark:border-slate-800 cursor-pointer hover:border-indigo-300 dark:hover:border-indigo-500/40 transition">
                             <input
                               type="checkbox"
                               checked={selectedLicenses.includes('coursedemy')}
@@ -847,11 +851,11 @@ export const RegistrationModal: React.FC<RegistrationModalProps> = ({
                               }}
                               className="rounded text-blue-600 focus:ring-blue-500"
                             />
-                            <GraduationCap className="w-4 h-4 text-indigo-600" />
-                            <span className="font-semibold text-slate-800 dark:text-slate-200">CourseDemy SaaS</span>
+                            <CourseDemyIcon className="w-5 h-5 rounded-md p-0.5" />
+                            <span className="font-semibold text-slate-800 dark:text-slate-200">VCourseDemy SaaS</span>
                           </label>
 
-                          <label className="flex items-center gap-2 p-2 rounded-xl bg-white dark:bg-[#121723] border border-blue-100 dark:border-slate-800 cursor-pointer">
+                          <label className="flex items-center gap-2 p-2 rounded-xl bg-white dark:bg-[#121723] border border-blue-100 dark:border-slate-800 cursor-pointer hover:border-teal-300 dark:hover:border-teal-500/40 transition">
                             <input
                               type="checkbox"
                               checked={selectedLicenses.includes('vihotask')}
@@ -861,7 +865,7 @@ export const RegistrationModal: React.FC<RegistrationModalProps> = ({
                               }}
                               className="rounded text-blue-600 focus:ring-blue-500"
                             />
-                            <Kanban className="w-4 h-4 text-teal-600" />
+                            <VihoTaskIcon className="w-5 h-5 rounded-md p-0.5" />
                             <span className="font-semibold text-slate-800 dark:text-slate-200">VihoTask Kanban</span>
                           </label>
                         </div>
@@ -897,7 +901,7 @@ export const RegistrationModal: React.FC<RegistrationModalProps> = ({
                   <div className="p-4 rounded-2xl bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-950/40 dark:to-indigo-950/40 border border-blue-100 dark:border-blue-900/60 mb-3">
                     <h5 className="text-xs font-bold text-blue-900 dark:text-blue-200">Đăng ký Học tập & Trải nghiệm Cá nhân</h5>
                     <p className="text-[11px] text-blue-700 dark:text-blue-300 mt-0.5">
-                      Miễn phí truy cập các khóa học lập trình CourseDemy và tạo bảng quản lý task cá nhân.
+                      Miễn phí truy cập các khóa học lập trình VCourseDemy và tạo bảng quản lý task cá nhân.
                     </p>
                   </div>
 
@@ -1056,7 +1060,7 @@ export const RegistrationModal: React.FC<RegistrationModalProps> = ({
                         <span>Lời mời hợp lệ từ: Alpha Corp (tenant-alpha)</span>
                       </div>
                       <div className="text-[11px] text-emerald-700 dark:text-emerald-300">
-                        Vai trò được cấp: <span className="font-mono font-bold">org_member</span> • Quyền truy cập: <span className="font-mono font-bold">CourseDemy + VihoTask</span>
+                        Vai trò được cấp: <span className="font-mono font-bold">org_member</span> • Quyền truy cập: <span className="font-mono font-bold">VCourseDemy + VihoTask</span>
                       </div>
                     </div>
                   ) : inviteStatus === 'expired' ? (

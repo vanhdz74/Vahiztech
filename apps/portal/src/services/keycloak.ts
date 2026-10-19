@@ -24,7 +24,7 @@ export const TEST_PERSONAS: TestPersona[] = [
     roleBadgeColor: 'from-cyan-500 to-blue-600',
     tenantId: 'alpha-corp',
     licenses: ['coursedemy', 'vihotask'],
-    description: 'Doanh nghiệp Alpha - Đã mua đầy đủ 2 ứng dụng CourseDemy & VihoTask.',
+    description: 'Doanh nghiệp Alpha - Đã mua đầy đủ 2 ứng dụng VCourseDemy & VihoTask.',
   },
   {
     id: 'alpha-staff',
@@ -34,7 +34,7 @@ export const TEST_PERSONAS: TestPersona[] = [
     roleBadgeColor: 'from-indigo-500 to-purple-600',
     tenantId: 'alpha-corp',
     licenses: ['vihotask'],
-    description: 'Nhân viên Alpha - Chỉ được cấp quyền VihoTask, bị chặn CourseDemy.',
+    description: 'Nhân viên Alpha - Chỉ được cấp quyền VihoTask, bị chặn VCourseDemy.',
   },
   {
     id: 'beta-student',
@@ -44,7 +44,7 @@ export const TEST_PERSONAS: TestPersona[] = [
     roleBadgeColor: 'from-emerald-500 to-teal-600',
     tenantId: 'beta-school',
     licenses: ['coursedemy'],
-    description: 'Học viên Beta School - Chỉ có bản quyền CourseDemy, bị chặn VihoTask.',
+    description: 'Học viên Beta School - Chỉ có bản quyền VCourseDemy, bị chặn VihoTask.',
   },
   {
     id: 'free-user',
@@ -123,9 +123,32 @@ export async function loginWithCredentials(username: string, password: string): 
   return { tokens, user };
 }
 
+function generateRandomString(length: number = 64): string {
+  const charset = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-._~';
+  const randomValues = new Uint8Array(length);
+  window.crypto.getRandomValues(randomValues);
+  return Array.from(randomValues, (val) => charset[val % charset.length]).join('');
+}
+
+async function generateCodeChallenge(codeVerifier: string): Promise<string> {
+  const encoder = new TextEncoder();
+  const data = encoder.encode(codeVerifier);
+  const digest = await window.crypto.subtle.digest('SHA-256', data);
+  const bytes = new Uint8Array(digest);
+  let binary = '';
+  for (let i = 0; i < bytes.byteLength; i++) {
+    binary += String.fromCharCode(bytes[i]);
+  }
+  return btoa(binary)
+    .replace(/\+/g, '-')
+    .replace(/\//g, '_')
+    .replace(/=+$/, '');
+}
+
 export async function exchangeAuthorizationCode(code: string): Promise<{ tokens: AuthTokens; user: KeycloakUser }> {
   const tokenUrl = `${KEYCLOAK_URL}/realms/${REALM_NAME}/protocol/openid-connect/token`;
   const redirectUri = window.location.origin + window.location.pathname;
+  const verifier = sessionStorage.getItem('vahiztech_hub_pkce_verifier');
 
   const body = new URLSearchParams({
     grant_type: 'authorization_code',
@@ -135,6 +158,10 @@ export async function exchangeAuthorizationCode(code: string): Promise<{ tokens:
     scope: 'openid profile email tenant-info',
   });
 
+  if (verifier) {
+    body.append('code_verifier', verifier);
+  }
+
   const res = await fetch(tokenUrl, {
     method: 'POST',
     headers: {
@@ -142,6 +169,8 @@ export async function exchangeAuthorizationCode(code: string): Promise<{ tokens:
     },
     body: body.toString(),
   });
+
+  sessionStorage.removeItem('vahiztech_hub_pkce_verifier');
 
   if (!res.ok) {
     const errorData = await res.json().catch(() => ({}));
@@ -185,10 +214,37 @@ export function clearSession() {
   localStorage.removeItem(STORAGE_KEYS.USER_DATA);
 }
 
-export function redirectToKeycloakOIDCLogin() {
-  const redirectUri = encodeURIComponent(window.location.origin + window.location.pathname);
-  const authUrl = `${KEYCLOAK_URL}/realms/${REALM_NAME}/protocol/openid-connect/auth?client_id=${CLIENT_ID}&redirect_uri=${redirectUri}&response_type=code&scope=openid%20profile%20email%20tenant-info`;
-  window.location.href = authUrl;
+export async function redirectToKeycloakOIDCLogin() {
+  const verifier = generateRandomString(64);
+  sessionStorage.setItem('vahiztech_hub_pkce_verifier', verifier);
+  const challenge = await generateCodeChallenge(verifier);
+
+  const redirectUri = window.location.origin + window.location.pathname;
+  const params = new URLSearchParams({
+    client_id: CLIENT_ID,
+    redirect_uri: redirectUri,
+    response_type: 'code',
+    scope: 'openid profile email tenant-info',
+    code_challenge: challenge,
+    code_challenge_method: 'S256',
+  });
+  window.location.href = `${KEYCLOAK_URL}/realms/${REALM_NAME}/protocol/openid-connect/auth?${params.toString()}`;
+}
+
+export function getAppLaunchUrl(targetUrl?: string, token?: string | null): string {
+  if (!targetUrl) return '';
+  const currentToken = token || getStoredSession().token;
+  if (!currentToken) return targetUrl;
+  try {
+    const url = new URL(targetUrl);
+    if (url.port === '3001' || url.port === '3002') {
+      url.searchParams.set('sso_token', currentToken);
+      return url.toString();
+    }
+  } catch {
+    // If not a full URL
+  }
+  return targetUrl;
 }
 
 export function getKeycloakAccountConsoleUrl(): string {

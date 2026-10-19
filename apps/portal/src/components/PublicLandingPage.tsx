@@ -31,9 +31,10 @@ import {
   VahizCloudIcon,
   VahizMeetIcon,
   VahizDocsIcon,
-  VahizAnalyticsIcon,
-  VahizDevHubIcon
+  VahizBillingIcon,
+  VahizFormsIcon
 } from './AppIcons';
+import vahiztechLogo from '../assets/logos/vahiztech-logo.png';
 
 interface PublicLandingPageProps {
   onOpenLoginModal: () => void;
@@ -58,9 +59,11 @@ export const PublicLandingPage: React.FC<PublicLandingPageProps> = ({
       <header className="h-16 bg-white/90 dark:bg-[#0e131d]/90 backdrop-blur-md border-b border-blue-100/90 dark:border-slate-800 px-4 sm:px-8 flex items-center justify-between sticky top-0 z-40 shadow-[0_1px_4px_rgba(37,99,235,0.04)] dark:shadow-none">
         {/* Brand Logo */}
         <div className="flex items-center gap-2.5">
-          <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-blue-600 via-indigo-600 to-purple-600 flex items-center justify-center text-white shadow-md shadow-blue-500/25">
-            <Layers className="w-5 h-5" />
-          </div>
+          <img
+            src={vahiztechLogo}
+            alt="Vahiztech Logo"
+            className="w-9 h-9 rounded-xl object-cover shadow-md shadow-blue-500/25 border border-blue-200/50 dark:border-slate-700 shrink-0"
+          />
           <div>
             <span className="font-black text-base sm:text-lg tracking-tight bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 bg-clip-text text-transparent">
               Vahiztech
@@ -107,6 +110,21 @@ export const PublicLandingPage: React.FC<PublicLandingPageProps> = ({
         <div className="absolute top-10 left-1/2 -translate-x-1/2 w-[600px] h-[300px] bg-blue-500/10 dark:bg-blue-500/15 rounded-full blur-3xl pointer-events-none" />
 
         <div className="max-w-5xl mx-auto text-center relative z-10 space-y-6">
+          {/* Main Brand Logo Hero Badge */}
+          <div className="flex justify-center mb-2">
+            <div className="relative inline-block group">
+              <img
+                src={vahiztechLogo}
+                alt="Vahiztech Brand Logo"
+                className="w-20 h-20 sm:w-24 sm:h-24 rounded-3xl object-cover shadow-2xl shadow-blue-500/30 border-2 border-white/40 dark:border-blue-500/30 group-hover:scale-105 transition-transform duration-300"
+              />
+              <span className="absolute -bottom-1 -right-1 flex h-4 w-4">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-75"></span>
+                <span className="relative inline-flex rounded-full h-4 w-4 bg-blue-500 border-2 border-white dark:border-slate-900"></span>
+              </span>
+            </div>
+          </div>
+
           <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-blue-50 dark:bg-blue-950/70 text-blue-700 dark:text-blue-300 border border-blue-200 dark:border-blue-800 text-xs font-bold shadow-2xs">
             <Sparkles className="w-3.5 h-3.5 text-blue-600 dark:text-blue-400" />
             <span>Hệ Thống Định Danh Tập Trung Keycloak IAM 25+ & SaaS Ecosystem</span>
@@ -120,7 +138,7 @@ export const PublicLandingPage: React.FC<PublicLandingPageProps> = ({
           </h1>
 
           <p className="text-sm sm:text-base text-slate-600 dark:text-slate-300 max-w-2xl mx-auto leading-relaxed">
-            Nền tảng Portal trung tâm tích hợp Single Sign-On (SSO OIDC PKCE). Đăng nhập 1 lần để truy cập <strong>CourseDemy E-learning</strong>, <strong>VihoTask Kanban</strong>, trợ lý <strong>Vahiz AI</strong> và các ứng dụng doanh nghiệp.
+            Nền tảng Portal trung tâm tích hợp Single Sign-On (SSO OIDC PKCE). Đăng nhập 1 lần để truy cập <strong>VCourseDemy E-learning</strong>, <strong>VihoTask Kanban</strong>, trợ lý <strong>Vahiz AI</strong> và các ứng dụng doanh nghiệp.
           </p>
 
           {/* Action CTAs */}
@@ -176,7 +194,7 @@ export const PublicLandingPage: React.FC<PublicLandingPageProps> = ({
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          {/* 1. CourseDemy */}
+          {/* 1. VCourseDemy */}
           <div className="p-6 rounded-3xl bg-white dark:bg-[#121723] border border-blue-100 dark:border-slate-800 shadow-sm hover:shadow-xl transition-all duration-300 flex flex-col justify-between group">
             <div>
               <div className="flex items-center justify-between mb-4">
@@ -186,7 +204,7 @@ export const PublicLandingPage: React.FC<PublicLandingPageProps> = ({
                 </span>
               </div>
               <h3 className="text-lg font-bold text-slate-900 dark:text-slate-100 group-hover:text-blue-600 transition-colors">
-                CourseDemy Platform
+                VCourseDemy Platform
               </h3>
               <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5 font-medium">E-Learning & Video Courses</p>
               <p className="text-xs text-slate-600 dark:text-slate-300 mt-3 leading-relaxed">
@@ -381,18 +399,18 @@ export const PublicLandingPage: React.FC<PublicLandingPageProps> = ({
           </div>
 
           <div className="p-5 rounded-2xl bg-white dark:bg-[#121723] border border-blue-100 dark:border-slate-800 flex items-start gap-4">
-            <VahizAnalyticsIcon className="w-12 h-12 shrink-0" />
+            <VahizBillingIcon className="w-12 h-12 shrink-0" />
             <div>
-              <h4 className="text-sm font-bold text-slate-900 dark:text-slate-100">Vahiz Metric & BI</h4>
-              <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">Bảng phân tích dữ liệu kinh doanh, KPI và doanh thu Multi-Tenant.</p>
+              <h4 className="text-sm font-bold text-slate-900 dark:text-slate-100">Vahiz Billing & Pay</h4>
+              <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">Cổng thanh toán tự động, thu học phí, xuất hóa đơn điện tử qua VietQR, MoMo.</p>
             </div>
           </div>
 
           <div className="p-5 rounded-2xl bg-white dark:bg-[#121723] border border-blue-100 dark:border-slate-800 flex items-start gap-4">
-            <VahizDevHubIcon className="w-12 h-12 shrink-0" />
+            <VahizFormsIcon className="w-12 h-12 shrink-0" />
             <div>
-              <h4 className="text-sm font-bold text-slate-900 dark:text-slate-100">Vahiz DevHub & API</h4>
-              <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">API Gateway, OpenAPI Swagger và giám sát Apache Kafka streams.</p>
+              <h4 className="text-sm font-bold text-slate-900 dark:text-slate-100">Vahiz Forms & Quizzes</h4>
+              <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">Tạo đề thi trắc nghiệm trực tuyến, chấm điểm tự động và form khảo sát.</p>
             </div>
           </div>
         </div>
@@ -402,9 +420,11 @@ export const PublicLandingPage: React.FC<PublicLandingPageProps> = ({
       <footer className="py-8 px-4 sm:px-8 border-t border-blue-100 dark:border-slate-800 bg-white dark:bg-[#0e131d] text-center text-xs text-slate-500 dark:text-slate-400">
         <div className="max-w-6xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
           <div className="flex items-center gap-2">
-            <div className="w-6 h-6 rounded-lg bg-blue-600 flex items-center justify-center text-white">
-              <Layers className="w-3.5 h-3.5" />
-            </div>
+            <img
+              src={vahiztechLogo}
+              alt="Vahiztech Logo"
+              className="w-6 h-6 rounded-lg object-cover shadow-xs border border-blue-200/40 dark:border-slate-700 shrink-0"
+            />
             <span className="font-bold text-slate-800 dark:text-slate-200">Vahiztech SaaS Ecosystem</span>
             <span>• Keycloak 25.0+ IAM</span>
           </div>

@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { KeycloakUser } from '../types/auth';
 import { formatTimeRemaining } from '../utils/jwt';
 import { Shield, Building2, Package, Clock, UserCheck, Key, CheckCircle, AlertTriangle } from 'lucide-react';
+import { CourseDemyIcon, VihoTaskIcon } from './AppIcons';
 
 interface IdentityCardProps {
   user: KeycloakUser | null;
@@ -138,7 +139,13 @@ export const IdentityCard: React.FC<IdentityCardProps> = ({ user }) => {
                 key={lic}
                 className="px-2.5 py-1 rounded-lg text-xs font-semibold font-mono bg-blue-50 dark:bg-blue-950/60 text-blue-700 dark:text-blue-300 border border-blue-200 dark:border-blue-800 flex items-center gap-1.5 shadow-2xs"
               >
-                <CheckCircle className="w-3 h-3 text-blue-600 dark:text-blue-400" />
+                {lic === 'coursedemy' ? (
+                  <CourseDemyIcon className="w-3.5 h-3.5 rounded p-0 border-0 shadow-none bg-transparent" variant="raw" />
+                ) : lic === 'vihotask' ? (
+                  <VihoTaskIcon className="w-3.5 h-3.5 rounded p-0 border-0 shadow-none bg-transparent" variant="raw" />
+                ) : (
+                  <CheckCircle className="w-3 h-3 text-blue-600 dark:text-blue-400" />
+                )}
                 {lic}
               </span>
             ))

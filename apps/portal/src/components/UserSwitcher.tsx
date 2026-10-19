@@ -2,6 +2,7 @@ import React from 'react';
 import { TEST_PERSONAS } from '../services/keycloak';
 import { KeycloakUser } from '../types/auth';
 import { Users, Sparkles, CheckCircle2, ShieldAlert } from 'lucide-react';
+import { CourseDemyIcon, VihoTaskIcon } from './AppIcons';
 
 interface UserSwitcherProps {
   currentUser: KeycloakUser | null;
@@ -60,13 +61,20 @@ export const UserSwitcher: React.FC<UserSwitcherProps> = ({ currentUser, onSelec
               </div>
 
               <div className="pt-2 border-t border-slate-200/80 dark:border-slate-750 flex flex-wrap items-center gap-1">
-                <span className="text-[9px] font-mono px-1.5 py-0.5 rounded bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700 shadow-2xs">
+                <span className="text-[9px] font-mono px-1.5 py-0.5 rounded bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-750 shadow-2xs">
                   🏢 {persona.tenantId}
                 </span>
                 {persona.licenses.length > 0 ? (
                   persona.licenses.map((lic) => (
-                    <span key={lic} className="text-[9px] font-mono px-1.5 py-0.5 rounded bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800">
-                      📦 {lic}
+                    <span key={lic} className="text-[9px] font-mono px-1.5 py-0.5 rounded bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800 flex items-center gap-1">
+                      {lic === 'coursedemy' ? (
+                        <CourseDemyIcon className="w-3 h-3 rounded-xs p-0 border-0 shadow-none bg-transparent" variant="raw" />
+                      ) : lic === 'vihotask' ? (
+                        <VihoTaskIcon className="w-3 h-3 rounded-xs p-0 border-0 shadow-none bg-transparent" variant="raw" />
+                      ) : (
+                        <span>📦</span>
+                      )}
+                      <span>{lic}</span>
                     </span>
                   ))
                 ) : (

@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import { X, LogIn, Key, User, ExternalLink, ShieldCheck, AlertCircle } from 'lucide-react';
 import { redirectToKeycloakOIDCLogin } from '../services/keycloak';
+import { CourseDemyIcon, VihoTaskIcon } from './AppIcons';
+import vahiztechLogo from '../assets/logos/vahiztech-logo.png';
 
 interface DirectLoginModalProps {
   isOpen: boolean;
@@ -36,11 +38,13 @@ export const DirectLoginModal: React.FC<DirectLoginModalProps> = ({
         {/* Decorative Top Accent */}
         <div className="absolute top-0 left-0 right-0 h-1.5 bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600" />
 
-        <div className="flex items-center justify-between pb-4 mb-4 border-b border-slate-100 dark:border-slate-800">
+        <div className="flex items-center justify-between pb-4 mb-3 border-b border-slate-100 dark:border-slate-800">
           <div className="flex items-center gap-2.5">
-            <div className="p-2 rounded-xl bg-blue-50 dark:bg-blue-950/60 text-blue-600 dark:text-blue-400 border border-blue-100 dark:border-blue-900">
-              <ShieldCheck className="w-5 h-5" />
-            </div>
+            <img
+              src={vahiztechLogo}
+              alt="Vahiztech Logo"
+              className="w-10 h-10 rounded-xl object-cover shadow-sm border border-blue-200/50 dark:border-slate-700 shrink-0"
+            />
             <div>
               <h3 className="text-base font-bold text-slate-900 dark:text-slate-100">Đăng Nhập SSO Vahiztech</h3>
               <p className="text-xs text-slate-500 dark:text-slate-400">Keycloak 25.0+ Ecosystem Realm</p>
@@ -53,6 +57,21 @@ export const DirectLoginModal: React.FC<DirectLoginModalProps> = ({
           >
             <X className="w-5 h-5" />
           </button>
+        </div>
+
+        {/* Connected Apps Mini Bar */}
+        <div className="mb-4 px-3 py-2 rounded-xl bg-blue-50/50 dark:bg-slate-900/60 border border-blue-100 dark:border-slate-800 flex items-center justify-between">
+          <span className="text-[11px] text-slate-600 dark:text-slate-400 font-medium">Đăng nhập 1 lần vào tất cả:</span>
+          <div className="flex items-center gap-1.5">
+            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-lg bg-white dark:bg-slate-800 text-[10px] font-bold text-slate-700 dark:text-slate-200 border border-slate-200 dark:border-slate-700 shadow-2xs">
+              <CourseDemyIcon className="w-3.5 h-3.5 rounded p-0 border-0 shadow-none bg-transparent" variant="raw" />
+              VCourseDemy
+            </span>
+            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-lg bg-white dark:bg-slate-800 text-[10px] font-bold text-slate-700 dark:text-slate-200 border border-slate-200 dark:border-slate-700 shadow-2xs">
+              <VihoTaskIcon className="w-3.5 h-3.5 rounded p-0 border-0 shadow-none bg-transparent" variant="raw" />
+              VihoTask
+            </span>
+          </div>
         </div>
 
         {error && (

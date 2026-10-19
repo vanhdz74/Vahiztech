@@ -3,7 +3,8 @@ import { KeycloakUser } from '../types/auth';
 import { 
   getKeycloakRealmAdminConsoleUrl, 
   getKeycloakMasterAdminConsoleUrl, 
-  getKeycloakAccountConsoleUrl 
+  getKeycloakAccountConsoleUrl,
+  getAppLaunchUrl
 } from '../services/keycloak';
 import { 
   GraduationCap, 
@@ -31,7 +32,7 @@ export const AppMarketplace: React.FC<AppMarketplaceProps> = ({ user }) => {
   const apps = [
     {
       id: 'coursedemy',
-      name: 'CourseDemy Platform',
+      name: 'VCourseDemy Platform',
       category: 'E-Learning & Video Courses',
       licenseKey: 'coursedemy',
       icon: GraduationCap,
@@ -161,7 +162,7 @@ export const AppMarketplace: React.FC<AppMarketplaceProps> = ({ user }) => {
               <div className="pt-4 border-t border-slate-100">
                 {isAllowed ? (
                   <a
-                    href={app.targetUrl}
+                    href={getAppLaunchUrl(app.targetUrl)}
                     target="_blank"
                     rel="noreferrer"
                     className="w-full py-2 px-3 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold flex items-center justify-center gap-2 transition shadow-sm shadow-blue-500/20 active:scale-95"

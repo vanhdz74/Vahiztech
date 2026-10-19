@@ -44,12 +44,37 @@ services:
     ports:
       - "${VIHOTASK_BACKEND_PORT:-8083}:8080"
     environment:
-      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/vihotask_db
-      SPRING_DATASOURCE_USERNAME: ${POSTGRES_USER:-keycloak}
-      SPRING_DATASOURCE_PASSWORD: ${POSTGRES_PASSWORD:-keycloak_secure_pass_2026}
-      PORT: 8080
+      DB_URL: jdbc:postgresql://postgres:5432/vihotask_db
+      DB_USER: ${POSTGRES_USER:-keycloak}
+      DB_PASSWORD: ${POSTGRES_PASSWORD:-keycloak_secure_pass_2026}
+      QUARKUS_DATASOURCE_JDBC_URL: jdbc:postgresql://postgres:5432/vihotask_db
+      QUARKUS_DATASOURCE_USERNAME: ${POSTGRES_USER:-keycloak}
+      QUARKUS_DATASOURCE_PASSWORD: ${POSTGRES_PASSWORD:-keycloak_secure_pass_2026}
+      QUARKUS_HTTP_PORT: 8080
+      QUARKUS_HTTP_HOST: 0.0.0.0
       JWT_SECRET: ${JWT_SECRET:-ZGV2LW9ubHktdmlob3Rhc2stand0LXNlY3JldC0xMjM0NTY=}
-      SPRING_PROFILES_ACTIVE: uat
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  vihotask-frontend:
+    build:
+      context: ./apps/vihotask/frontend
+      dockerfile: Dockerfile
+      args:
+        NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_VIHOTASK_API:-http://localhost:8083}
+    container_name: vahiztech-vihotask-frontend
+    restart: unless-stopped
+    ports:
+      - "${VIHOTASK_FRONTEND_PORT:-3002}:3000"
+    environment:
+      AUTH_SECRET: ${AUTH_SECRET:-vahiztech-dev-secret-auth-key-2026}
+      AUTH_URL: http://localhost:3002
+      NEXTAUTH_URL: http://localhost:3002
+      BACKEND_INTERNAL_URL: http://vihotask-backend:8080
+      NEXT_PUBLIC_API_URL: http://localhost:8083
+    depends_on:
+      - vihotask-backend
 
 networks:
   default:

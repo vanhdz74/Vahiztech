@@ -8,7 +8,9 @@ import {
   Briefcase, 
   Palette, 
   FileText, 
-  SlidersHorizontal 
+  SlidersHorizontal,
+  Clock,
+  GraduationCap
 } from 'lucide-react';
 import { CATEGORIES } from '../data/appsData';
 
@@ -31,16 +33,18 @@ export const CategoryFilterTabs: React.FC<CategoryFilterTabsProps> = ({
         return <LayoutGrid className={iconClass} />;
       case 'Bookmark':
         return <Bookmark className={iconClass} />;
+      case 'Clock':
+        return <Clock className={iconClass} />;
+      case 'GraduationCap':
+        return <GraduationCap className={iconClass} />;
+      case 'Briefcase':
+        return <Briefcase className={iconClass} />;
+      case 'Sparkles':
+        return <Sparkles className={iconClass} />;
       case 'Layers':
         return <Layers className={iconClass} />;
       case 'Rocket':
         return <Rocket className={iconClass} />;
-      case 'Sparkles':
-        return <Sparkles className={iconClass} />;
-      case 'Briefcase':
-        return <Briefcase className={iconClass} />;
-      case 'Palette':
-        return <Palette className={iconClass} />;
       case 'FileText':
         return <FileText className={iconClass} />;
       default:

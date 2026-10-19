@@ -1,5 +1,6 @@
 # Chạy độc lập hạ tầng nền tảng
 services:
+  # db sso
   postgres:
     image: postgres:16-alpine
     container_name: vahiztech-postgres
@@ -8,7 +9,7 @@ services:
       POSTGRES_DB: ${POSTGRES_DB:-keycloak}
       POSTGRES_USER: ${POSTGRES_USER:-keycloak}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-keycloak_secure_pass_2026}
-      POSTGRES_MULTIPLE_DATABASES: "coursedemy_db,vihotask_db"
+      POSTGRES_MULTIPLE_DATABASES: "coursedemy_db,vcoursedemy_db,vihotask_db"
     ports:
       - "${POSTGRES_PORT:-5432}:5432"
     volumes:
@@ -21,6 +22,7 @@ services:
       retries: 10
       start_period: 5s
 
+  # xử lý auth
   keycloak:
     build:
       context: ./infra/keycloak
@@ -55,6 +57,7 @@ services:
       - ./infra/keycloak/realms/ecosystem-realm.json:/opt/keycloak/data/import/realm-config.json:ro
       - ./infra/keycloak/themes:/opt/keycloak/themes:ro
 
+  # bắn tb
   kafka:
     image: confluentinc/cp-kafka:7.6.1
     container_name: vahiztech-kafka

@@ -356,6 +356,41 @@
       ]
     },
     {
+      "clientId": "coursedemy-frontend",
+      "name": "CourseDemy E-Learning Frontend App",
+      "description": "Public Client OIDC PKCE S256 dành cho Frontend CourseDemy (Web Con - Port 3001)",
+      "enabled": true,
+      "publicClient": true,
+      "bearerOnly": false,
+      "standardFlowEnabled": true,
+      "implicitFlowEnabled": false,
+      "directAccessGrantsEnabled": true,
+      "serviceAccountsEnabled": false,
+      "rootUrl": "http://localhost:3001",
+      "baseUrl": "http://localhost:3001",
+      "redirectUris": [
+        "http://localhost:3001/*",
+        "http://localhost:3001/api/auth/callback/keycloak",
+        "http://localhost:3001/silent-check-sso.html"
+      ],
+      "webOrigins": [
+        "http://localhost:3001",
+        "+"
+      ],
+      "attributes": {
+        "pkce.code.challenge.method": "S256",
+        "post.logout.redirect.uris": "http://localhost:3000/*",
+        "access.token.lifespan": "3600"
+      },
+      "defaultClientScopes": [
+        "web-origins",
+        "profile",
+        "roles",
+        "email",
+        "tenant-info"
+      ]
+    },
+    {
       "clientId": "coursedemy-client",
       "name": "CourseDemy Resource Server",
       "description": "Backend API CourseDemy (E-Learning App) - Bearer-only Resource Server",
@@ -366,6 +401,41 @@
       "implicitFlowEnabled": false,
       "directAccessGrantsEnabled": false,
       "serviceAccountsEnabled": false,
+      "defaultClientScopes": [
+        "web-origins",
+        "profile",
+        "roles",
+        "email",
+        "tenant-info"
+      ]
+    },
+    {
+      "clientId": "vihotask-frontend",
+      "name": "VihoTask Workflow Frontend App",
+      "description": "Public Client OIDC PKCE S256 dành cho Frontend VihoTask (Web Con - Port 3002)",
+      "enabled": true,
+      "publicClient": true,
+      "bearerOnly": false,
+      "standardFlowEnabled": true,
+      "implicitFlowEnabled": false,
+      "directAccessGrantsEnabled": true,
+      "serviceAccountsEnabled": false,
+      "rootUrl": "http://localhost:3002",
+      "baseUrl": "http://localhost:3002",
+      "redirectUris": [
+        "http://localhost:3002/*",
+        "http://localhost:3002/api/auth/callback/keycloak",
+        "http://localhost:3002/silent-check-sso.html"
+      ],
+      "webOrigins": [
+        "http://localhost:3002",
+        "+"
+      ],
+      "attributes": {
+        "pkce.code.challenge.method": "S256",
+        "post.logout.redirect.uris": "http://localhost:3000/*",
+        "access.token.lifespan": "3600"
+      },
       "defaultClientScopes": [
         "web-origins",
         "profile",
