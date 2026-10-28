@@ -9,7 +9,7 @@ services:
       POSTGRES_DB: ${POSTGRES_DB:-keycloak}
       POSTGRES_USER: ${POSTGRES_USER:-keycloak}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-keycloak_secure_pass_2026}
-      POSTGRES_MULTIPLE_DATABASES: "coursedemy_db,vcoursedemy_db,vihotask_db"
+      POSTGRES_MULTIPLE_DATABASES: "coursedemy_db,vcoursedemy_db,vihotask_db,payment_hub_db"
     ports:
       - "${POSTGRES_PORT:-5432}:5432"
     volumes:
@@ -17,6 +17,23 @@ services:
       - ./infra/postgres/init-scripts/01-init-multi-postgres-dbs.sh:/docker-entrypoint-initdb.d/init-multi-postgres-dbs.sh:ro
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      start_period: 5s
+
+  # redis cache & distributed lock
+  redis:
+    image: redis:7-alpine
+    container_name: vahiztech-redis
+    restart: unless-stopped
+    command: ["redis-server", "--appendonly", "yes"]
+    ports:
+      - "${REDIS_PORT:-6379}:6379"
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
       interval: 5s
       timeout: 5s
       retries: 10
@@ -83,4 +100,7 @@ networks:
 volumes:
   auth_postgres_data:
     name: auth_postgres_data
+    driver: local
+  redis_data:
+    name: vahiztech_redis_data
     driver: local

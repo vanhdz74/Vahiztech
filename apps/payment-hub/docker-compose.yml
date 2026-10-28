@@ -1,0 +1,79 @@
+# ==============================================================================
+# VAHIZTECH PAYMENT HUB - STANDALONE DEV DOCKER COMPOSE
+# ==============================================================================
+# Hướng dẫn chạy:
+#   1. Khởi chạy Database Postgres + Redis:
+#      docker compose up -d postgres redis
+#
+#   2. Khởi chạy toàn bộ (bao gồm cả Payment-Hub Service):
+#      docker compose up -d
+#
+#   3. Dừng hệ thống:
+#      docker compose down
+# ==============================================================================
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: vahiztech-payment-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-payment_hub_db}
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
+    ports:
+      - "${PAYMENT_POSTGRES_PORT:-5434}:5432"
+    volumes:
+      - payment_postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      start_period: 5s
+
+  redis:
+    image: redis:7-alpine
+    container_name: vahiztech-payment-redis
+    restart: unless-stopped
+    command: ["redis-server", "--appendonly", "yes"]
+    ports:
+      - "${REDIS_PORT:-6379}:6379"
+    volumes:
+      - payment_redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      start_period: 5s
+
+  payment-hub:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: vahiztech-payment-hub
+    restart: unless-stopped
+    ports:
+      - "${PAYMENT_HUB_PORT:-8084}:8084"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/${POSTGRES_DB:-payment_hub_db}
+      SPRING_DATASOURCE_USERNAME: ${POSTGRES_USER:-postgres}
+      SPRING_DATASOURCE_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      PORT: 8084
+      SPRING_PROFILES_ACTIVE: dev
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+
+volumes:
+  payment_postgres_data:
+    name: vahiztech_payment_postgres_data
+    driver: local
+  payment_redis_data:
+    name: vahiztech_payment_redis_data
+    driver: local

@@ -1,0 +1,15 @@
+spring:
+  config:
+    activate:
+      on-profile: dev
+
+  jpa:
+    show-sql: true
+
+logging:
+  level:
+    root: INFO
+    com.vahiztech.payment: DEBUG
+    org.flywaydb: INFO
+    org.hibernate.SQL: DEBUG
+    org.hibernate.type.descriptor.sql.BasicBinder: TRACE
