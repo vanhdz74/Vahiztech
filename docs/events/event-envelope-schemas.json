@@ -36,7 +36,11 @@
         "TaskCreated",
         "TaskAssigned",
         "TaskStatusChanged",
-        "TaskCommentAdded"
+        "TaskCommentAdded",
+        "PaymentOrderCreated",
+        "PaymentCompleted",
+        "PaymentFailed",
+        "PaymentRefunded"
       ]
     },
     "producer": {
@@ -45,7 +49,8 @@
         "admin-service",
         "coursedemy-service",
         "vihotask-service",
-        "quarkus-bff"
+        "quarkus-bff",
+        "payment-hub"
       ]
     },
     "version": {
@@ -101,6 +106,36 @@
         "courseTitle": { "type": "string" },
         "userId": { "type": "string" },
         "username": { "type": "string" }
+      }
+    },
+    "PaymentCompletedPayload": {
+      "type": "object",
+      "required": ["orderCode", "tenantId", "sourceService", "sourceOrderId", "amount", "currency", "provider", "paidAt"],
+      "properties": {
+        "orderCode": { "type": "string", "example": "ORD-20261108-A1B2C3D4" },
+        "tenantId": { "type": "string", "example": "tenant-alpha" },
+        "sourceService": { "type": "string", "enum": ["COURSEDEMY", "VIHOTASK", "PORTAL_BILLING", "OTHER"] },
+        "sourceOrderId": { "type": "string", "example": "COURSE-99" },
+        "customerId": { "type": "string" },
+        "customerEmail": { "type": "string", "format": "email" },
+        "amount": { "type": "number", "example": 599000 },
+        "currency": { "type": "string", "example": "VND" },
+        "provider": { "type": "string", "enum": ["VIETQR", "VNPAY", "MOMO", "ZALOPAY", "STRIPE"] },
+        "paymentMethod": { "type": "string", "enum": ["QR_CODE", "ATM_CARD", "CREDIT_CARD", "E_WALLET", "BANK_TRANSFER"] },
+        "transactionCode": { "type": "string", "example": "TXN-20261108-XYZ123" },
+        "paidAt": { "type": "string", "format": "date-time" }
+      }
+    },
+    "PaymentFailedPayload": {
+      "type": "object",
+      "required": ["orderCode", "tenantId", "sourceService", "sourceOrderId", "reason"],
+      "properties": {
+        "orderCode": { "type": "string" },
+        "tenantId": { "type": "string" },
+        "sourceService": { "type": "string" },
+        "sourceOrderId": { "type": "string" },
+        "reason": { "type": "string" },
+        "failedAt": { "type": "string", "format": "date-time" }
       }
     }
   }

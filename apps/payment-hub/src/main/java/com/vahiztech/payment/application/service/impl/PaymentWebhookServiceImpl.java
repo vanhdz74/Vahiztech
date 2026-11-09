@@ -7,6 +7,9 @@ import com.vahiztech.payment.domain.entity.PaymentOrderEntity;
 import com.vahiztech.payment.domain.entity.PaymentWebhookLogEntity;
 import com.vahiztech.payment.domain.enums.PaymentStatus;
 import com.vahiztech.payment.domain.enums.WebhookProcessingStatus;
+import com.vahiztech.payment.infrastructure.kafka.event.PaymentCompletedPayload;
+import com.vahiztech.payment.infrastructure.kafka.event.PaymentFailedPayload;
+import com.vahiztech.payment.infrastructure.kafka.producer.PaymentKafkaProducer;
 import com.vahiztech.payment.infrastructure.repository.PaymentOrderRepository;
 import com.vahiztech.payment.infrastructure.repository.PaymentWebhookLogRepository;
 import lombok.RequiredArgsConstructor;
@@ -26,6 +29,7 @@ public class PaymentWebhookServiceImpl implements PaymentWebhookService {
 
     private final PaymentWebhookLogRepository webhookLogRepository;
     private final PaymentOrderRepository orderRepository;
+    private final PaymentKafkaProducer kafkaProducer;
 
     @Override
     @Transactional
@@ -53,9 +57,38 @@ public class PaymentWebhookServiceImpl implements PaymentWebhookService {
                     order.setStatus(PaymentStatus.COMPLETED);
                     orderRepository.save(order);
                     log.info("Updated order {} status to COMPLETED via Webhook", order.getOrderCode());
+
+                    // Bắn sự kiện PaymentCompleted lên Apache Kafka
+                    PaymentCompletedPayload completedPayload = PaymentCompletedPayload.builder()
+                            .orderCode(order.getOrderCode())
+                            .tenantId(order.getTenantId())
+                            .sourceService(order.getSourceService() != null ? order.getSourceService().name() : null)
+                            .sourceOrderId(order.getSourceOrderId())
+                            .customerId(order.getCustomerId())
+                            .customerEmail(order.getCustomerEmail())
+                            .amount(order.getAmount())
+                            .currency(order.getCurrency())
+                            .provider(request.provider() != null ? request.provider().name() : null)
+                            .paidAt(OffsetDateTime.now(ZoneOffset.UTC))
+                            .build();
+
+                    kafkaProducer.publishPaymentCompleted(order.getTenantId(), null, completedPayload);
+
                 } else if ("PAYMENT_FAILED".equalsIgnoreCase(request.eventType())) {
                     order.setStatus(PaymentStatus.FAILED);
                     orderRepository.save(order);
+
+                    // Bắn sự kiện PaymentFailed lên Apache Kafka
+                    PaymentFailedPayload failedPayload = PaymentFailedPayload.builder()
+                            .orderCode(order.getOrderCode())
+                            .tenantId(order.getTenantId())
+                            .sourceService(order.getSourceService() != null ? order.getSourceService().name() : null)
+                            .sourceOrderId(order.getSourceOrderId())
+                            .reason("Payment failed callback received from provider " + request.provider())
+                            .failedAt(OffsetDateTime.now(ZoneOffset.UTC))
+                            .build();
+
+                    kafkaProducer.publishPaymentFailed(order.getTenantId(), null, failedPayload);
                 }
             });
             saved.setProcessingStatus(WebhookProcessingStatus.PROCESSED);

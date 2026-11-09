@@ -90,6 +90,7 @@ services:
       SPRING_DATASOURCE_PASSWORD: ${POSTGRES_PASSWORD:-keycloak_secure_pass_2026}
       REDIS_HOST: redis
       REDIS_PORT: 6379
+      KAFKA_BOOTSTRAP_SERVERS: kafka:9092
       PORT: 8084
       SPRING_PROFILES_ACTIVE: dev
     depends_on:

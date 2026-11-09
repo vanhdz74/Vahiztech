@@ -93,6 +93,20 @@ services:
     ports:
       - "29092:29092"
 
+  # Giao diện Web quản trị trực quan Apache Kafka UI
+  kafka-ui:
+    image: provectuslabs/kafka-ui:latest
+    container_name: vahiztech-kafka-ui
+    restart: unless-stopped
+    ports:
+      - "${KAFKA_UI_PORT:-8085}:8080"
+    environment:
+      KAFKA_CLUSTERS_0_NAME: vahiztech-cluster
+      KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS: kafka:9092
+      DYNAMIC_CONFIG_ENABLED: "true"
+    depends_on:
+      - kafka
+
 networks:
   default:
     name: vahiztech_net
